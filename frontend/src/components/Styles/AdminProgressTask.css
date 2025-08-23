@@ -1,0 +1,41 @@
+
+.progress-container {
+  max-width: 650px;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background-color: #fffef6;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.progress-heading {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #d35400;
+  margin-bottom: 1.5rem;
+}
+
+.progress-task-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.progress-task-item {
+  background-color: #fff5e6;
+  border-left: 6px solid #f39c12;
+  margin-bottom: 12px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  transition: background 0.3s ease;
+}
+
+.progress-task-item:hover {
+  background-color: #ffe9cc;
+}
+
+.assigned-to {
+  font-size: 0.9rem;
+  color: #6b4e16;
+  font-style: italic;
+}
