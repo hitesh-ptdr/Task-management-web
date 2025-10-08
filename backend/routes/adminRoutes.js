@@ -1,169 +1,77 @@
-// const express = require("express");
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
-// const Admin = require("../models/Admin");
-// const Developer = require("../models/Developer");
-// const { verifyAdmin } = require("../middleware/authMiddleware");
-
-// const router = express.Router();
-
-// // ✅ Admin Register
-// router.post("/register", async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
-//     const exists = await Admin.findOne({ email });
-//     if (exists) return res.status(400).json({ message: "Admin already exists" });
-
-//     const hashed = await bcrypt.hash(password, 10);
-//     const admin = await Admin.create({ name, email, password: hashed });
-
-//     res.status(201).json({ message: "Admin registered successfully", admin });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// // ✅ Admin Login
-// router.post("/login", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const admin = await Admin.findOne({ email });
-//     if (!admin) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const isMatch = await bcrypt.compare(password, admin.password);
-//     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-//     res.json({ token, admin });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// // ✅ Verify Admin
-// router.get("/verify-admin", verifyAdmin, (req, res) => {
-//   res.json({ message: "Admin verified", admin: req.admin });
-// });
-
-// // ✅ Add Developer
-// router.post("/add-developer", verifyAdmin, async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
-//     const exists = await Developer.findOne({ email });
-//     if (exists) return res.status(400).json({ message: "Developer already exists" });
-
-//     const hashed = await bcrypt.hash(password, 10);
-//     const developer = await Developer.create({ name, email, password: hashed });
-
-//     res.status(201).json({ message: "Developer added successfully", developer });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// // ✅ Get All Developers
-// router.get("/developers", verifyAdmin, async (req, res) => {
-//   try {
-//     const developers = await Developer.find({}, "name email");
-//     res.json(developers);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// module.exports = router;
- 
-
 const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const Admin = require("../models/Admin");
-const Developer = require("../models/Developer");
-const { verifyAdmin } = require("../middleware/authMiddleware");
-
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const Admin = require("../models/Admin");
 
-// ==========================
-// ✅ Admin Register
-// ==========================
+// ✅ Generate Token (with role)
+const generateToken = (id, role) => {
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "30d" }); 
+};
+
+// ✅ Register
 router.post("/register", async (req, res) => {
+  const { name, email, password } = req.body;
   try {
-    const { name, email, password } = req.body;
+    let admin = await Admin.findOne({ email });
+    if (admin) return res.status(400).json({ message: "Admin already exists" });
 
-    const exists = await Admin.findOne({ email });
-    if (exists) return res.status(400).json({ message: "Admin already exists" });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    const hashed = await bcrypt.hash(password, 10);
-    const admin = await Admin.create({ name, email, password: hashed });
+    admin = await Admin.create({ name, email, password: hashedPassword });
 
-    res.status(201).json({ message: "Admin registered successfully", admin });
+    res.json({
+      _id: admin.id,
+      name: admin.name,
+      email: admin.email,
+      token: generateToken(admin.id, "admin"),
+      role: "admin",
+    });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
-// ==========================
-// ✅ Admin Login
-// ==========================
+// ✅ Login
 router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
-
     const admin = await Admin.findOne({ email });
-    if (!admin) return res.status(400).json({ message: "Invalid credentials" });
-
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-    // ✅ Add role in token
-    const token = jwt.sign(
-      { id: admin._id, role: "admin" },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.json({ message: "Login successful", token, admin });
+    if (admin && (await bcrypt.compare(password, admin.password))) {
+      res.json({
+        _id: admin.id,
+        name: admin.name,
+        email: admin.email,
+        token: generateToken(admin.id, "admin"),
+        role: "admin",
+      });
+    } else {
+      res.status(400).json({ message: "Invalid credentials" });
+    }
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Server error. Please try again later." });
   }
 });
 
-// ==========================
-// ✅ Verify Admin
-// ==========================
-router.get("/verify-admin", verifyAdmin, (req, res) => {
-  res.json({ message: "Admin verified", admin: req.admin });
-});
+// ✅ Verify-admin (NEW)
+router.get("/verify-admin", (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ message: "No token" });
 
-// ==========================
-// ✅ Add Developer (Admin only)
-// ==========================
-router.post("/add-developer", verifyAdmin, async (req, res) => {
+  const token = authHeader.split(" ")[1];
   try {
-    const { name, email, password } = req.body;
-
-    const exists = await Developer.findOne({ email });
-    if (exists) return res.status(400).json({ message: "Developer already exists" });
-
-    const hashed = await bcrypt.hash(password, 10);
-    const developer = await Developer.create({ name, email, password: hashed });
-
-    res.status(201).json({ message: "Developer added successfully", developer });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    res.json({ admin: true, id: decoded.id }); // confirm frontend ke liye
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-});
-
-// ==========================
-// ✅ Get All Developers (Admin only)
-// ==========================
-router.get("/developers", verifyAdmin, async (req, res) => {
-  try {
-    const developers = await Developer.find({}, "name email");
-    res.json(developers);
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(401).json({ message: "Invalid token" });
   }
 });
 
 module.exports = router;
+

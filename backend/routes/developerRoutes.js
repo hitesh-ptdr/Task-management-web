@@ -145,10 +145,30 @@ router.get("/", verifyAdmin, async (req, res) => {
 router.get("/tasks", verifyDeveloper, async (req, res) => {
   try {
     const developerId = req.developer.id; 
-    // Schema ke hisaab se "developer" field se filter kar rahe hain
     const tasks = await Task.find({ developer: developerId });
     res.json(tasks);
   } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ==========================
+// ✅ PATCH route to update task status
+// ==========================
+router.patch("/tasks/:id", verifyDeveloper, async (req, res) => {
+  try {
+    const taskId = req.params.id;
+    const developerId = req.developer.id;
+
+    const task = await Task.findOne({ _id: taskId, developer: developerId });
+    if (!task) return res.status(404).json({ message: "Task not found" });
+
+    task.status = req.body.status || task.status;
+    await task.save();
+
+    res.json({ message: "Status updated successfully", task });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -168,3 +188,4 @@ router.get("/verify", verifyDeveloper, async (req, res) => {
 });
 
 module.exports = router;
+

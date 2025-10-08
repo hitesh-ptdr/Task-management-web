@@ -1,0 +1,50 @@
+.logout-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e0f7fa, #ffffff);
+  font-family: 'Poppins', sans-serif;
+}
+
+.logout-box {
+  background: #ffffff;
+  padding: 2.5rem 3.5rem;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.6s ease-in-out;
+  max-width: 400px;
+}
+
+.logout-icon {
+  color: #00b894;
+  margin-bottom: 1rem;
+  animation: popIn 0.5s ease-in-out;
+}
+
+.logout-box h1 {
+  color: #2d3436;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+}
+
+.logout-box p {
+  color: #636e72;
+  font-size: 1rem;
+}
+
+.logout-box p span {
+  color: #00b894;
+  font-weight: bold;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

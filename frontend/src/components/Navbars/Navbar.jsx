@@ -88,7 +88,7 @@ const Navbar = () => {
 
       <div style={styles.links}>
         <NavLink
-          to="/admin/register" // ✅ direct register page
+          to="/admin/register"
           style={({ isActive }) =>
             isActive ? { ...styles.link, ...styles.active } : styles.link
           }
@@ -116,6 +116,11 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    position: "fixed",   // ✅ fix top
+    top: 0,
+    left: 0,
+    width: "100%",
+    zIndex: 1000,
   },
   logo: {
     display: 'flex',
@@ -144,8 +149,7 @@ const styles = {
     background: '#fff',
     color: '#ff6f00',
     fontWeight: 'bold',
-  },
+  }
 };
 
 export default Navbar;
-

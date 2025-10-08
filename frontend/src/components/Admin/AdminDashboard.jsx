@@ -1,3 +1,4 @@
+// src/components/Admin/AdminDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
@@ -10,7 +11,7 @@ const AdminDashboard = () => {
   const fetchTasks = async (token) => {
     try {
       const res = await axios.get("/tasks", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(res.data);
     } catch (err) {
@@ -30,7 +31,7 @@ const AdminDashboard = () => {
     const verifyAdminToken = async () => {
       try {
         const res = await axios.get("/admin/verify-admin", {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (res.data && res.data.admin) {
@@ -51,15 +52,14 @@ const AdminDashboard = () => {
     verifyAdminToken();
   }, [navigate]);
 
-  const pending = tasks.filter((t) => t.status === "Pending");
-  const progress = tasks.filter((t) => t.status === "In-Progress");
-  const completed = tasks.filter((t) => t.status === "Completed");
+  // Case-insensitive status filtering
+  const pending = tasks.filter((t) => t.status?.toLowerCase() === "pending");
+  const progress = tasks.filter((t) => t.status?.toLowerCase() === "in-progress");
+  const completed = tasks.filter((t) => t.status?.toLowerCase() === "completed");
 
   return (
     <div className="admin-dashboard-container">
       <main className="main-content">
-        <h1 className="table-title">Admin Dashboard</h1>
-
         <div className="task-summary">
           <div className="task-box pending">
             <h3>Pending Tasks</h3>
@@ -76,7 +76,9 @@ const AdminDashboard = () => {
         </div>
 
         {/* Pending Tasks Table */}
-        <h2 className="table-title" style={{ marginTop: "2rem" }}>Today's Pending Tasks</h2>
+        <h2 className="table-title" style={{ marginTop: "2rem" }}>
+          Today's Pending Tasks
+        </h2>
         {pending.length === 0 ? (
           <p style={{ textAlign: "center", marginTop: "1rem", color: "gray" }}>
             No pending tasks found.
@@ -115,3 +117,7 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+    
+
+
