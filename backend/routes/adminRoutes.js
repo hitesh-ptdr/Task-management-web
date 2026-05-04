@@ -2,24 +2,94 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const multer = require("multer");
+const path = require("path");
+
+const Company = require("../models/Company");
 const Admin = require("../models/Admin");
 
-// ✅ Generate Token (with role)
+/* ===========================
+   TOKEN
+=========================== */
 const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: "30d" }); 
+  return jwt.sign({ id, role }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
 };
 
-// ✅ Register
+/* ===========================
+   VERIFY ADMIN (FIXED)
+=========================== */
+const verifyAdmin = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const admin = await Admin.findById(decoded.id);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    req.admin = admin;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
+};
+
+/* ===========================
+   MULTER
+=========================== */
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
+});
+
+const upload = multer({ storage });
+
+/* ===========================
+   REGISTER
+=========================== */
 router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, companyName } = req.body;
+
   try {
     let admin = await Admin.findOne({ email });
-    if (admin) return res.status(400).json({ message: "Admin already exists" });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    if (admin) {
+      return res.status(400).json({
+        message: "Admin already exists",
+      });
+    }
 
-    admin = await Admin.create({ name, email, password: hashedPassword });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const company = await Company.create({
+      name: companyName || `${name}'s Company`,
+    });
+
+    admin = await Admin.create({
+      name,
+      email,
+      password: hashedPassword,
+      companyId: company._id,
+    });
+
+    company.owner = admin._id;
+    await company.save();
 
     res.json({
       _id: admin.id,
@@ -27,18 +97,24 @@ router.post("/register", async (req, res) => {
       email: admin.email,
       token: generateToken(admin.id, "admin"),
       role: "admin",
+      companyId: company._id,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error. Please try again later." });
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 });
 
-// ✅ Login
+/* ===========================
+   LOGIN
+=========================== */
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const admin = await Admin.findOne({ email });
+
     if (admin && (await bcrypt.compare(password, admin.password))) {
       res.json({
         _id: admin.id,
@@ -46,32 +122,71 @@ router.post("/login", async (req, res) => {
         email: admin.email,
         token: generateToken(admin.id, "admin"),
         role: "admin",
+        companyId: admin.companyId,
       });
     } else {
-      res.status(400).json({ message: "Invalid credentials" });
+      res.status(400).json({
+        message: "Invalid credentials",
+      });
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error. Please try again later." });
+  } catch {
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 });
 
-// ✅ Verify-admin (NEW)
-router.get("/verify-admin", (req, res) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) return res.status(401).json({ message: "No token" });
-
-  const token = authHeader.split(" ")[1];
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role !== "admin") {
-      return res.status(403).json({ message: "Access denied" });
-    }
-    res.json({ admin: true, id: decoded.id }); // confirm frontend ke liye
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
-  }
+/* ===========================
+   🔥 VERIFY ADMIN (NEW FIX)
+=========================== */
+router.get("/verify-admin", verifyAdmin, async (req, res) => {
+  res.json({
+    admin: req.admin,
+  });
 });
+
+/* ===========================
+   PROFILE
+=========================== */
+router.get("/profile", verifyAdmin, async (req, res) => {
+  res.json({
+    admin: req.admin,
+  });
+});
+
+/* ===========================
+   UPDATE PROFILE
+=========================== */
+router.put("/update-profile", verifyAdmin, async (req, res) => {
+  const admin = req.admin;
+
+  if (req.body.name) admin.name = req.body.name;
+  if (req.body.email) admin.email = req.body.email;
+
+  if (req.body.password) {
+    admin.password = await bcrypt.hash(req.body.password, 10);
+  }
+
+  await admin.save();
+
+  res.json({ message: "Profile Updated" });
+});
+
+/* ===========================
+   UPLOAD PHOTO
+=========================== */
+router.post(
+  "/upload-photo",
+  verifyAdmin,
+  upload.single("image"),
+  async (req, res) => {
+    const admin = req.admin;
+
+    admin.profilePic = req.file.filename;
+    await admin.save();
+
+    res.json({ message: "Photo Uploaded" });
+  }
+);
 
 module.exports = router;
-

@@ -1,16 +1,22 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from "react-router-dom";
+
 import Navbar from "./components/Navbars/Navbar";
 
-// Home
-import Home from "./components/Home/Home";
+/* Home */
+import Home from "./components/Home/Home"; 
+import About from "./components/About";
 
-// Layouts
+/* Layouts */
 import AdminSidebarLayout from "./components/Admin/AdminSidebarLayout";
 import DeveloperLoginLayout from "./components/Developer/DeveloperLoginLayout";
-import DeveloperSidebarLayout from "./components/Developer/DeveloperSidebarLayout"; 
+import DeveloperSidebarLayout from "./components/Developer/DeveloperSidebarLayout";
 
-// Admin Pages
+/* Admin */
 import AdminLogin from "./components/Admin/AdminLogin";
 import AdminRegister from "./components/Admin/AdminRegister";
 import AdminDashboard from "./components/Admin/AdminDashboard";
@@ -21,33 +27,49 @@ import AdminAllTask from "./components/Admin/AdminAllTask";
 import AdminCompletedTask from "./components/Admin/AdminCompletedTask";
 import AdminPendingTask from "./components/Admin/AdminPendingTask";
 import AdminProgressTask from "./components/Admin/AdminProgressTask";
+import AdminProfile from "./components/Admin/AdminProfile";
 import AdminLogout from "./components/Admin/AdminLogout";
 
-// Developer Pages
+/* Developer */
 import DeveloperLogin from "./components/Developer/DeveloperLogin";
 import DeveloperDashboard from "./components/Developer/DeveloperDashboard";
-import MyTasks from "./components/Developer/MyTasks.jsx";
-import Profile from "./components/Developer/Profile.jsx";
-import Settings from "./components/Developer/Settings.jsx";
+import MyTasks from "./components/Developer/MyTasks";
+import DeveloperProfile from "./components/Developer/DeveloperProfile";
+import Settings from "./components/Developer/Settings";
 
-// Protected Routes
+/* Protected */
 import ProtectedRoute from "./components/ProtectedRoute";
 import DeveloperProtectedRoute from "./components/Developer/DeveloperProtectedRoute";
+
+/* PUBLIC ONLY */
+const PublicLayout = ({ children }) => (
+  <>
+    <Navbar />
+    {children}
+  </>
+);
 
 const App = () => {
   return (
     <Router>
-      <Navbar />
       <Routes>
 
-        {/* Home */}
-        <Route path="/" element={<Home />} />
+        {/* HOME ONLY WITH NAVBAR */}
+        <Route
+          path="/"
+          element={
+            <PublicLayout>
+              <Home />
+            </PublicLayout>
+          }
+        />
 
-        {/* Admin Auth */}
+        {/* ADMIN AUTH (NO NAVBAR) */}
         <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin/register" element={<AdminRegister />} />
+        <Route path="/admin/register" element={<AdminRegister />} /> 
+        <Route path="/about" element={<About />} /> 
 
-        {/* Admin Protected Routes (with sidebar) */}
+        {/* ADMIN PANEL (NO NAVBAR) */}
         <Route path="/admin" element={<AdminSidebarLayout />}>
           <Route
             path="dashboard"
@@ -57,6 +79,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="add-developer"
             element={
@@ -65,6 +88,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="all-developer"
             element={
@@ -73,6 +97,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="add-task"
             element={
@@ -81,6 +106,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="all-task"
             element={
@@ -89,6 +115,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="completed-task"
             element={
@@ -97,6 +124,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="pending-task"
             element={
@@ -105,6 +133,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="progress-task"
             element={
@@ -113,6 +142,16 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <AdminProfile />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="logout"
             element={
@@ -123,12 +162,12 @@ const App = () => {
           />
         </Route>
 
-        {/* Developer Auth */}
-        <Route path="/developer" element={<DeveloperLoginLayout />}>   
+        {/* DEVELOPER LOGIN */}
+        <Route path="/developer" element={<DeveloperLoginLayout />}>
           <Route index element={<DeveloperLogin />} />
           <Route path="login" element={<DeveloperLogin />} />
 
-          {/* Developer Protected Routes with sidebar */}
+          {/* DEVELOPER PANEL */}
           <Route
             path="dashboard"
             element={
@@ -139,21 +178,20 @@ const App = () => {
           >
             <Route index element={<DeveloperDashboard />} />
             <Route path="my-tasks" element={<MyTasks />} />
-            <Route path="profile" element={<Profile />} />
+            <Route path="profile" element={<DeveloperProfile />} />
             <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
 
-        {/* Catch all - 404 page */}
+        {/* 404 */}
         <Route
           path="*"
           element={<h2 style={{ padding: "2rem" }}>404 - Page Not Found</h2>}
         />
+
       </Routes>
     </Router>
   );
 };
 
 export default App;
-
-

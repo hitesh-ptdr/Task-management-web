@@ -2,23 +2,29 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children, role }) => {
-  const token = localStorage.getItem("token");
 
-  // अगर token नहीं है तो login पर redirect करो
-  if (!token) {
-    return <Navigate to={role === "admin" ? "/admin" : "/developer"} replace />;
-  }
+  // ✅ Admin token
+  const adminToken = localStorage.getItem("token");
 
-  // Admin check
+  // ✅ Developer token
+  const devToken = localStorage.getItem("devToken");
+
+  /* ===========================
+     ADMIN PROTECTION
+  ============================ */
   if (role === "admin") {
-    const isAdmin = localStorage.getItem("isAdminLoggedIn") === "true";
-    if (!isAdmin) return <Navigate to="/admin" replace />;
+    if (!adminToken) {
+      return <Navigate to="/admin/login" replace />;
+    }
   }
 
-  // Developer check
+  /* ===========================
+     DEVELOPER PROTECTION
+  ============================ */
   if (role === "developer") {
-    const isDev = localStorage.getItem("isDevLoggedIn") === "true";
-    if (!isDev) return <Navigate to="/developer" replace />;
+    if (!devToken) {
+      return <Navigate to="/developer/login" replace />;
+    }
   }
 
   return children;

@@ -1,85 +1,32 @@
 
-   
-
-// const express = require("express");
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
-// const Developer = require("../models/Developer");
-// const { verifyAdmin } = require("../middleware/authMiddleware");
-
-// const router = express.Router();
-
-// // ✅ Developer Login
-// router.post("/login", async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const dev = await Developer.findOne({ email });
-//     if (!dev) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const isMatch = await bcrypt.compare(password, dev.password);
-//     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-//     const token = jwt.sign({ id: dev._id, email: dev.email }, process.env.JWT_SECRET, {
-//       expiresIn: "1h",
-//     });
-
-//     res.json({ message: "Login successful", token, developer: { id: dev._id, name: dev.name, email: dev.email } });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// // ✅ Add new developer (only Admin can add)
-// router.post("/add", verifyAdmin, async (req, res) => {
-//   try {
-//     const { name, email, password } = req.body;
-
-//     let existing = await Developer.findOne({ email });
-//     if (existing) return res.status(400).json({ message: "Developer already exists" });
-
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     const newDev = new Developer({
-//       name,
-//       email,
-//       password: hashedPassword,
-//     });
-
-//     await newDev.save();
-
-//     res.status(201).json({ message: "Developer added successfully", developer: newDev });
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// // ✅ Get all developers (for dropdown / table)
-// router.get("/", verifyAdmin, async (req, res) => {
-//   try {
-//     const devs = await Developer.find({}, "name email");
-//     res.json(devs);
-//   } catch (err) {
-//     res.status(500).json({ message: "Server error", error: err.message });
-//   }
-// });
-
-// module.exports = router;
-  
-
 
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const path = require("path");
+
 const Developer = require("../models/Developer");
 const Task = require("../models/Task");
+const Admin = require("../models/Admin");
+
 const { verifyAdmin, verifyDeveloper } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-// ==========================
-// ✅ Developer Login
-// ==========================
+/* ===========================
+   MULTER
+=========================== */
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) =>
+    cb(null, Date.now() + path.extname(file.originalname)),
+});
+const upload = multer({ storage });
+
+/* ===========================
+   LOGIN
+=========================== */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -91,101 +38,137 @@ router.post("/login", async (req, res) => {
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
     const token = jwt.sign(
-      { id: dev._id, email: dev.email, role: "developer" }, 
+      { id: dev._id, role: "developer" },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
     res.json({
-      message: "Login successful",
       token,
-      developer: { id: dev._id, name: dev.name, email: dev.email }
+      developer: {
+        id: dev._id,
+        name: dev.name,
+        email: dev.email,
+      },
     });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+  } catch (e) {
+    console.log("DEV LOGIN ERROR:", e.message);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-// ==========================
-// ✅ Add new developer (Admin only)
-// ==========================
+/* ===========================
+   ADD DEVELOPER (ADMIN)
+=========================== */
 router.post("/add", verifyAdmin, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const existing = await Developer.findOne({ email });
-    if (existing) return res.status(400).json({ message: "Developer already exists" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields required" });
+    }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const exists = await Developer.findOne({ email });
+    if (exists) {
+      return res.status(400).json({ message: "Developer exists" });
+    }
 
-    const newDev = new Developer({ name, email, password: hashedPassword });
+    if (!req.admin || !req.admin.companyId) {
+      return res.status(400).json({ message: "Admin has no company assigned" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const newDev = new Developer({
+      name,
+      email,
+      password: hashed,
+      companyId: req.admin.companyId,
+    });
+
     await newDev.save();
 
-    res.status(201).json({ message: "Developer added successfully", developer: newDev });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.json({ message: "Developer added" });
+  } catch (e) {
+    console.log("ADD DEV ERROR:", e.message);
+    res.status(500).json({ message: "Error" });
   }
 });
 
-// ==========================
-// ✅ Get all developers (Admin only)
-// ==========================
+/* ===========================
+   GET DEVELOPERS (ADMIN)
+=========================== */
 router.get("/", verifyAdmin, async (req, res) => {
-  try {
-    const devs = await Developer.find({}, "name email");
-    res.json(devs);
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+  const devs = await Developer.find({
+    companyId: req.admin.companyId,
+  }).select("name email profilePic");
+
+  res.json(devs);
 });
 
-// ==========================
-// ✅ Get tasks assigned to logged-in developer
-// ==========================
-router.get("/tasks", verifyDeveloper, async (req, res) => {
-  try {
-    const developerId = req.developer.id; 
-    const tasks = await Task.find({ developer: developerId });
-    res.json(tasks);
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+/* ===========================
+   DELETE
+=========================== */
+router.delete("/:id", verifyAdmin, async (req, res) => {
+  const dev = await Developer.findOneAndDelete({
+    _id: req.params.id,
+    companyId: req.admin.companyId,
+  });
+
+  if (!dev) return res.status(404).json({ message: "Not found" });
+
+  res.json({ message: "Deleted" });
 });
 
-// ==========================
-// ✅ PATCH route to update task status
-// ==========================
-router.patch("/tasks/:id", verifyDeveloper, async (req, res) => {
-  try {
-    const taskId = req.params.id;
-    const developerId = req.developer.id;
-
-    const task = await Task.findOne({ _id: taskId, developer: developerId });
-    if (!task) return res.status(404).json({ message: "Task not found" });
-
-    task.status = req.body.status || task.status;
-    await task.save();
-
-    res.json({ message: "Status updated successfully", task });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-});
-
-// ==========================
-// ✅ Verify developer token and fetch developer info
-// ==========================
+/* ===========================
+   VERIFY (DEV) 🔥 IMPORTANT
+=========================== */
 router.get("/verify", verifyDeveloper, async (req, res) => {
-  try {
-    const developer = await Developer.findById(req.developer.id, "name email");
-    if (!developer) return res.status(404).json({ message: "Developer not found" });
-
-    res.json({ developer });
-  } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+  res.json({ developer: req.developer });
 });
+
+/* ===========================
+   TASKS (DEV)
+=========================== */
+router.get("/tasks", verifyDeveloper, async (req, res) => {
+  const tasks = await Task.find({
+    developer: req.developer._id,
+  });
+  res.json(tasks);
+});
+
+/* ===========================
+   PROFILE UPDATE
+=========================== */
+router.put("/update-profile", verifyDeveloper, async (req, res) => {
+  const dev = req.developer;
+
+  if (req.body.name) dev.name = req.body.name;
+  if (req.body.email) dev.email = req.body.email;
+
+  if (req.body.password) {
+    dev.password = await bcrypt.hash(req.body.password, 10);
+  }
+
+  await dev.save();
+
+  res.json({ message: "Updated" });
+});
+
+/* ===========================
+   PHOTO UPLOAD
+=========================== */
+router.post(
+  "/upload-photo",
+  verifyDeveloper,
+  upload.single("image"),
+  async (req, res) => {
+    const dev = req.developer;
+    dev.profilePic = req.file.filename;
+    await dev.save();
+
+    res.json({ message: "Uploaded" });
+  }
+);
 
 module.exports = router;
-

@@ -7,31 +7,36 @@ const AdminLogout = () => {
   const navigate = useNavigate();
   const [countdown, setCountdown] = useState(3);
 
+  // 1) Clear session once
   useEffect(() => {
-    // Clear session
     localStorage.removeItem("token");
     localStorage.removeItem("isAdminLoggedIn");
+  }, []);
 
+  // 2) Countdown timer
+  useEffect(() => {
     const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate("/admin/login"); // Redirect to login
-          return 0;
-        }
-        return prev - 1;
-      });
+      setCountdown((prev) => prev - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [navigate]);
+  }, []);
+
+  // 3) Redirect when countdown खत्म
+  useEffect(() => {
+    if (countdown <= 0) {
+      navigate("/admin/login", { replace: true });
+    }
+  }, [countdown, navigate]);
 
   return (
     <div className="logout-container">
       <div className="logout-box">
         <CheckCircle className="logout-icon" size={60} />
         <h1>Logged Out Successfully</h1>
-        <p>You will be redirected in <span>{countdown}</span> seconds...</p>
+        <p>
+          You will be redirected in <span>{countdown}</span> seconds...
+        </p>
       </div>
     </div>
   );

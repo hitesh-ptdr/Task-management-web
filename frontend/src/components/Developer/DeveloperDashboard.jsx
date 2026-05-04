@@ -7,9 +7,14 @@ const DeveloperDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (token) => {
     try {
-      const res = await axios.get("/developers/tasks");
+      const res = await axios.get("/developers/tasks", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       setTasks(res.data);
     } catch (err) {
       console.error("Error fetching tasks:", err);
@@ -18,91 +23,174 @@ const DeveloperDashboard = () => {
 
   useEffect(() => {
     const devToken = localStorage.getItem("devToken");
-    const isDevLoggedIn = localStorage.getItem("isDevLoggedIn");
+    const isDevLoggedIn =
+      localStorage.getItem("isDevLoggedIn");
 
     if (!devToken || isDevLoggedIn !== "true") {
       navigate("/developer/login");
       return;
     }
 
-    const verifyDeveloperToken = async () => {
+    const verify = async () => {
       try {
-        const res = await axios.get("/developers/verify");
+        const res = await axios.get(
+          "/developers/verify",
+          {
+            headers: {
+              Authorization: `Bearer ${devToken}`,
+            },
+          }
+        );
 
-        if (res.data && res.data.developer) {
-          fetchTasks();
+        if (res.data?.developer) {
+          fetchTasks(devToken);
         } else {
-          localStorage.removeItem("devToken");
-          localStorage.removeItem("isDevLoggedIn");
           navigate("/developer/login");
         }
-      } catch (err) {
-        console.error("Token invalid or developer not found", err);
-        localStorage.removeItem("devToken");
-        localStorage.removeItem("isDevLoggedIn");
+      } catch (error) {
         navigate("/developer/login");
       }
     };
 
-    verifyDeveloperToken();
+    verify();
   }, [navigate]);
 
-  const pending = tasks.filter((t) => t.status === "Pending");
-  const progress = tasks.filter((t) => t.status === "In-Progress");
-  const completed = tasks.filter((t) => t.status === "Completed");
+  const pending = tasks.filter(
+    (t) => t.status?.toLowerCase() === "pending"
+  );
+
+  const progress = tasks.filter(
+    (t) =>
+      t.status?.toLowerCase() ===
+      "in-progress"
+  );
+
+  const completed = tasks.filter((t) =>
+    t.status
+      ?.toLowerCase()
+      .includes("completed")
+  );
+
+  const overdue = tasks.filter(
+    (t) =>
+      new Date(t.deadline) < new Date() &&
+      !t.status
+        ?.toLowerCase()
+        .includes("completed")
+  );
+  const hour = new Date().getHours();
+
+const greeting =
+  hour < 12
+    ? "Good Morning"
+    : hour < 17
+    ? "Good Afternoon"
+    : "Good Evening";
 
   return (
-    <div>
-      <h1 className="table-title">Developer Dashboard</h1>
+    <div className="dev-wrap">
+      {/* Header */}
+      <div className="welcome-card">
+        <h1>{greeting}, Developer 👋</h1>
+        <p>
+          Manage your assigned work &
+          deadlines.
+        </p>
+      </div>
 
-      <div className="task-summary">
-        <div className="task-box pending">
-          <h3>Pending Tasks</h3>
-          <p>{pending.length}</p>
+      {/* Cards */}
+      <div className="stats-row">
+        <div className="mini-card total">
+          <span>Total Tasks</span>
+          <h3>{tasks.length}</h3>
         </div>
-        <div className="task-box in-progress">
-          <h3>In-Progress Tasks</h3>
-          <p>{progress.length}</p>
+
+        <div className="mini-card pending">
+          <span>Pending</span>
+          <h3>{pending.length}</h3>
         </div>
-        <div className="task-box completed">
-          <h3>Completed Tasks</h3>
-          <p>{completed.length}</p>
+
+        <div className="mini-card in-progress">
+          <span>in-progress</span>
+          <h3>{progress.length}</h3>
+        </div>
+
+        <div className="mini-card completed">
+          <span>Completed</span>
+          <h3>{completed.length}</h3>
+        </div>
+
+        <div className="mini-card overdue">
+          <span>Overdue</span>
+          <h3>{overdue.length}</h3>
         </div>
       </div>
 
-      <h2 className="table-title" style={{ marginTop: "2rem" }}>
-        Today's Pending Tasks
-      </h2>
-      {pending.length === 0 ? (
-        <p style={{ textAlign: "center", marginTop: "1rem", color: "gray" }}>
-          No pending tasks assigned.
-        </p>
-      ) : (
-        <table className="pending-table">
+      {/* Table */}
+      <div className="table-box">
+        <h2>My Recent Tasks</h2>
+
+        <table className="task-table">
           <thead>
             <tr>
-              <th>S.No</th>
-              <th>Task Id</th>
+              <th>#</th>
               <th>Task</th>
-              <th>Date/Time</th>
+              <th>Created</th>
               <th>Deadline</th>
               <th>Status</th>
             </tr>
           </thead>
+
           <tbody>
-            {pending.map((task, index) => (
-              <tr key={task._id}>
-                <td>{index + 1}</td>
-                <td>{task._id}</td>
-                <td>{task.title}</td>
-                <td>{new Date(task.datetime).toLocaleString()}</td>
-                <td>{new Date(task.deadline).toLocaleString()}</td>
-                <td className="pending-status">{task.status}</td>
+            {tasks.length === 0 ? (
+              <tr>
+                <td colSpan="5">
+                  No tasks assigned
+                </td>
               </tr>
-            ))}
+            ) : (
+              tasks.map(
+                (task, index) => (
+                  <tr key={task._id}>
+                    <td>
+                      {index + 1}
+                    </td>
+
+                    <td>
+                      {task.title}
+                    </td>
+
+                    <td>
+                      {new Date(
+                        task.createdAt
+                      ).toLocaleDateString()}
+                    </td>
+
+                    <td>
+                      {new Date(
+                        task.deadline
+                      ).toLocaleDateString()}
+                    </td>
+
+                    <td>
+                      <span
+                        className={`badge ${task.status
+                          .toLowerCase()
+                          .replace(
+                            " ",
+                            "-"
+                          )}`}
+                      >
+                        {task.status}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              )
+            )}
           </tbody>
         </table>
-      )}
+      </div>
     </div>
   );
 };

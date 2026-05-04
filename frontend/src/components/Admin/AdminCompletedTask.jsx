@@ -8,7 +8,7 @@ const AdminCompletedTask = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('/tasks', {
+      const res = await axios.get('/tasks', {   
         headers: { Authorization: `Bearer ${token}` }
       });
       setCompletedTasks(res.data.filter(task => task.status === 'Completed'));

@@ -1,79 +1,118 @@
-.admin-tasks-container {
-  max-width: 900px;
-  margin: 3rem auto;
-  padding: 3rem 2rem 2rem;
-  background: linear-gradient(120deg, #ffe8e8, #ffcccc);
-  border-radius: 18px;
-  box-shadow: 0 10px 25px rgba(218, 60, 50, 0.22);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  border-left: 8px solid #d6362a;
-  color: #671f1a;
+/* ===== Pending Tasks Real Modern UI ===== */
+
+.admin-tasks-container.pending {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 16px;
+  font-family: "Inter", sans-serif;
 }
 
+/* Heading */
 .admin-tasks-heading {
-  font-size: 2.6rem;
-  font-weight: 700;
-  color: #a52f2f;
-  margin-bottom: 2rem;
-  letter-spacing: 1.5px;
-  border-bottom: 3px solid #d6362a;
-  padding-bottom: 9px;
-  font-family: 'Georgia', serif;
+  font-size: 30px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 20px;
 }
 
+/* Main List Box */
 .admin-tasks-list {
   list-style: none;
   padding: 0;
+  margin: 0;
+  background: #ffffff;
+  border-radius: 22px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
 }
 
+/* Single Row */
 .task-card {
-  background: #fff5f5cc;
-  border-radius: 16px;
-  padding: 2rem 2rem 1.6rem 2rem;
-  box-shadow: 0 8px 22px rgba(182, 55, 47, 0.3);
-  margin-bottom: 1.6rem;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-  border-left: 6px solid #d6362a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: 0.25s ease;
+}
+
+.task-card:last-child {
+  border-bottom: none;
 }
 
 .task-card:hover {
-  box-shadow: 0 14px 34px rgba(182, 55, 47, 0.46);
-  transform: translateY(-7px) scale(1.04);
+  background: #fffaf5;
 }
 
+/* Task Title */
 .task-title {
-  font-size: 1.28rem;
+  flex: 1;
+  font-size: 16px;
   font-weight: 700;
-  color: #7e1c1a;
-  margin-bottom: 0.5rem;
-  font-style: italic;
-  letter-spacing: 0.5px;
-  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  color: #111827;
+  line-height: 1.5;
 }
 
-.task-badge {
-  background-color: #d7342e;
-  color: #ffefef;
-  padding: 5.5px 15px;
+/* Badge */
+.task-badge-pending {
+  background: #fff7ed;
+  color: #ea580c;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
   font-weight: 700;
-  border-radius: 13px;
-  font-size: 0.9rem;
-  user-select: none;
-  float: right;
-  box-shadow: 0 3px 9px #d7342e88;
+  white-space: nowrap;
 }
 
-.task-footer {
-  margin-top: 1.2rem;
-  font-style: italic;
-  font-weight: 600;
-  color: #581716;
-}
-
+/* Footer */
 .assigned-to {
-  display: inline-block;
-  background-color: #d6362a55;
-  padding: 6px 16px;
-  border-radius: 27px;
-  box-shadow: inset 0 2px 5px #d6362a88;
+  min-width: 160px;
+  text-align: right;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .admin-tasks-container.pending {
+    padding: 0 12px;
+  }
+
+  .admin-tasks-heading {
+    font-size: 24px;
+  }
+
+  .task-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .assigned-to {
+    min-width: auto;
+    text-align: left;
+  }
+
+  .task-title {
+    font-size: 15px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .admin-tasks-heading {
+    font-size: 21px;
+  }
+
+  .admin-tasks-list {
+    border-radius: 16px;
+  }
+
+  .task-badge-pending {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }

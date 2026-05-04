@@ -1,49 +1,93 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../../api/axios";
+import "../Styles/DeveloperSettings.css";
 
 const Settings = () => {
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [settings, setSettings] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/developers/change-password", {
-        currentPassword,
-        newPassword,
+  const token = localStorage.getItem("devToken");
+
+  /* ===========================
+     LOAD FROM BACKEND
+  ============================ */
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const res = await axios.get("/settings", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setMessage(res.data.message || "Password changed successfully");
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Error changing password");
-    }
+
+      setSettings(res.data);
+    };
+
+    fetchSettings();
+  }, [token]);
+
+  /* ===========================
+     HANDLE CHANGE
+  ============================ */
+  const handleChange = (e) => {
+    const { name, type, checked, value } = e.target;
+
+    setSettings({
+      ...settings,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
+
+  /* ===========================
+     SAVE TO BACKEND
+  ============================ */
+  const handleSave = async () => {
+    await axios.put("/settings", settings, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    alert("Saved successfully");
+  };
+
+  if (!settings) return <p>Loading...</p>;
 
   return (
     <div>
-      <h1>Settings</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Current Password:</label><br/>
-          <input
-            type="password"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>New Password:</label><br/>
-          <input
-            type="password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Change Password</button>
-      </form>
-      {message && <p>{message}</p>}
+      <h2>Settings</h2>
+
+      <label>
+        Dark Mode
+        <input
+          type="checkbox"
+          name="darkMode"
+          checked={settings.darkMode}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        Email Notify
+        <input
+          type="checkbox"
+          name="emailNotify"
+          checked={settings.emailNotify}
+          onChange={handleChange}
+        />
+      </label>
+
+      <label>
+        Language
+        <select
+          name="language"
+          value={settings.language}
+          onChange={handleChange}
+        >
+          <option>English</option>
+          <option>Hindi</option>
+        </select>
+      </label>
+
+      <button onClick={handleSave}>Save</button>
     </div>
   );
 };

@@ -1,155 +1,76 @@
-// import React from 'react';
-// import { NavLink } from 'react-router-dom';
-// import { IoMdTrophy } from "react-icons/io";
+// // Navbar.jsx
+// import React from "react";
+// import { Link } from "react-router-dom";
+// import "./Navbar.css";
 
 // const Navbar = () => {
 //   return (
-//     <nav style={styles.nav}>
-//       <NavLink to="/" style={styles.logo}>
-//         <IoMdTrophy size={28} />
-//         <span>Task Manager</span>     
-//       </NavLink>
+//     <header className="navbar">
 
-//       <div style={styles.links}>
-//         <NavLink
-//           to="/admin"
-//           style={({ isActive }) =>
-//             isActive ? { ...styles.link, ...styles.active } : styles.link
-//           }
-//         >
-//           Admin
-//         </NavLink>
-//         <NavLink
-//           to="/developer"
-//           style={({ isActive }) =>
-//             isActive ? { ...styles.link, ...styles.active } : styles.link
-//           }
-//         >
-//           Developer
-//         </NavLink>
+//       <Link to="/" className="nav-logo">
+//         <span>Task</span>Manager.
+//       </Link>
+
+//       <nav className="nav-menu">
+//         <Link to="/">Home</Link>
+//         <Link to="/admin/login">Admin</Link>
+//         <Link to="/developer/login">Developer</Link>
+//         <Link to="/about">About</Link>
+//       </nav>
+
+//       <div className="nav-right">
+//         <Link to="/admin/login" className="nav-btn">
+//           Login
+//         </Link>
 //       </div>
-//     </nav>
-//   );
-// };
 
-// const styles = {
-//   nav: {
-//     background: 'linear-gradient(90deg, #ff6f00, #ff8f00)',
-//     padding: '1rem 2rem',
-//     display: 'flex',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-//   },
-//   logo: {
-//     display: 'flex',
-//     alignItems: 'center',
-//     color: '#fff',
-//     textDecoration: 'none',
-//     fontSize: '22px',
-//     fontWeight: 'bold',
-//     gap: '0.5rem',
-//     textShadow: '1px 1px 4px rgba(0,0,0,0.3)',
-//   },
-//   links: {
-//     display: 'flex',
-//     gap: '1rem',
-//   },
-//   link: {
-//     color: 'white',
-//     textDecoration: 'none',
-//     fontSize: '16px',
-//     fontWeight: '500',
-//     padding: '8px 16px',
-//     borderRadius: '8px',
-//     transition: '0.3s ease',
-//   },
-//   active: {
-//     background: '#fff',
-//     color: '#ff6f00',
-//     fontWeight: 'bold',
-//   },
+//     </header>
+//   );
 // };
 
 // export default Navbar;
 
-
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { IoMdTrophy } from "react-icons/io";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "./Navbar.css";
 
 const Navbar = () => {
-  return (
-    <nav style={styles.nav}>
-      <NavLink to="/" style={styles.logo}>
-        <IoMdTrophy size={28} />
-        <span>Task Manager</span>
-      </NavLink>
 
-      <div style={styles.links}>
-        <NavLink
-          to="/admin/register"
-          style={({ isActive }) =>
-            isActive ? { ...styles.link, ...styles.active } : styles.link
-          }
-        >
-          Admin
-        </NavLink>
-        <NavLink
-          to="/developer"
-          style={({ isActive }) =>
-            isActive ? { ...styles.link, ...styles.active } : styles.link
-          }
-        >
-          Developer
-        </NavLink>
-      </div>
-    </nav>
-  );
-};
+const [menu,setMenu] = useState(false);
 
-const styles = {
-  nav: {
-    background: 'linear-gradient(90deg, #ff6f00, #ff8f00)',
-    padding: '1rem 2rem',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-    position: "fixed",   // ✅ fix top
-    top: 0,
-    left: 0,
-    width: "100%",
-    zIndex: 1000,
-  },
-  logo: {
-    display: 'flex',
-    alignItems: 'center',
-    color: '#fff',
-    textDecoration: 'none',
-    fontSize: '22px',
-    fontWeight: 'bold',
-    gap: '0.5rem',
-    textShadow: '1px 1px 4px rgba(0,0,0,0.3)',
-  },
-  links: {
-    display: 'flex',
-    gap: '1rem',
-  },
-  link: {
-    color: 'white',
-    textDecoration: 'none',
-    fontSize: '16px',
-    fontWeight: '500',
-    padding: '8px 16px',
-    borderRadius: '8px',
-    transition: '0.3s ease',
-  },
-  active: {
-    background: '#fff',
-    color: '#ff6f00',
-    fontWeight: 'bold',
-  }
+return (
+<header className="navbar">
+
+<Link to="/" className="nav-logo">
+<span>Task</span>Manager.
+</Link>
+
+<button
+className="menu-toggle"
+onClick={()=>setMenu(!menu)}
+>
+☰
+</button>
+
+<nav className={menu ? "nav-menu active" : "nav-menu"}>
+
+<Link to="/" onClick={()=>setMenu(false)}>Home</Link>
+<Link to="/admin/login" onClick={()=>setMenu(false)}>Admin</Link>
+<Link to="/developer/login" onClick={()=>setMenu(false)}>Developer</Link>
+<Link to="/about" onClick={()=>setMenu(false)}>About</Link>
+
+<Link
+to="/admin/login"
+className="nav-btn"
+onClick={()=>setMenu(false)}
+>
+Login
+</Link>
+
+</nav>
+
+</header>
+);
 };
 
 export default Navbar;

@@ -1,11 +1,82 @@
 .task-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 15px;
-  width: 250px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  border-left: 5px solid #e5e7eb;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+  transition: 0.25s ease;
 }
 
-.task-card.pending { border-left: 5px solid #fbbf24; }
-.task-card.inprogress { border-left: 5px solid #3b82f6; }
-.task-card.completed { border-left: 5px solid #10b981; }
+.task-card:hover {
+  transform: translateY(-5px);
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.task-top h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.task-desc {
+  margin: 14px 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.task-info span {
+  display: block;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.task-info strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Pending */
+.task-card.pending {
+  border-left-color: #f59e0b;
+}
+
+.status-badge.pending {
+  background: #fff7ed;
+  color: #ea580c;
+}
+
+/* Progress */
+.task-card.inprogress {
+  border-left-color: #3b82f6;
+}
+
+.status-badge.inprogress {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* Completed */
+.task-card.completed {
+  border-left-color: #10b981;
+}
+
+.status-badge.completed {
+  background: #ecfdf5;
+  color: #15803d;
+}

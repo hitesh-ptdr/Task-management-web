@@ -1,72 +1,81 @@
 const jwt = require("jsonwebtoken");
+const Admin = require("../models/Admin");
+const Developer = require("../models/Developer");
 
-// ✅ Admin verify
-const verifyAdmin = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token" });
-
+/* ===========================
+   VERIFY ADMIN (FINAL)
+=========================== */
+exports.verifyAdmin = async (req, res, next) => {
   try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     if (decoded.role !== "admin") {
-      return res.status(403).json({ message: "Access denied" });
+      return res.status(403).json({ message: "Admin access only" });
     }
-    req.admin = decoded;
+
+    // 🔥 FULL ADMIN LOAD
+    const admin = await Admin.findById(decoded.id);
+
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found" });
+    }
+
+    // 🔥 CRITICAL CHECK
+    if (!admin.companyId) {
+      return res.status(400).json({
+        message: "Admin has no company assigned",
+      });
+    }
+
+    req.admin = admin;
+
     next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+
+  } catch (error) {
+    console.log("VERIFY ADMIN ERROR:", error.message);
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
 
-// ✅ Developer verify
-const verifyDeveloper = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "No token" });
-
+/* ===========================
+   VERIFY DEVELOPER (FINAL)
+=========================== */
+exports.verifyDeveloper = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role !== "developer") {
-      return res.status(403).json({ message: "Access denied" });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No token provided" });
     }
-    req.developer = decoded;
+
+    const token = authHeader.split(" ")[1];
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "developer") {
+      return res.status(403).json({ message: "Developer access only" });
+    }
+
+    const developer = await Developer.findById(decoded.id);
+
+    if (!developer) {
+      return res.status(404).json({ message: "Developer not found" });
+    }
+
+    req.developer = developer;
+
     next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid token" });
+
+  } catch (error) {
+    console.log("VERIFY DEV ERROR:", error.message);
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
-
-module.exports = { verifyAdmin, verifyDeveloper };
-   
-
-  // const jwt = require("jsonwebtoken");
-
-  // // ✅ Admin verify
-  // const verifyAdmin = (req, res, next) => {
-  //   const token = req.headers.authorization?.split(" ")[1];
-  //   if (!token) return res.status(401).json({ message: "No token" });
-
-  //   try {
-  //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  //     if (decoded.role !== "admin") return res.status(403).json({ message: "Access denied" });
-  //     req.admin = decoded;
-  //     next();
-  //   } catch (err) {
-  //     res.status(401).json({ message: "Invalid token" });
-  //   }
-  // };
-
-  // // ✅ Developer verify
-  // const verifyDeveloper = (req, res, next) => {
-  //   const token = req.headers.authorization?.split(" ")[1];
-  //   if (!token) return res.status(401).json({ message: "No token" });
-
-  //   try {
-  //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  //     if (decoded.role !== "developer") return res.status(403).json({ message: "Access denied" });
-  //     req.developer = decoded;
-  //     next();
-  //   } catch (err) {
-  //     res.status(401).json({ message: "Invalid token" });
-  //   }
-  // };
-
-  // module.exports = { verifyAdmin, verifyDeveloper };

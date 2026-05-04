@@ -4,80 +4,90 @@ import axios from "../../api/axios";
 
 const AdminAuth = ({ mode = "login" }) => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    companyName: "", // 🔥 IMPORTANT
+  });
+
   const [loading, setLoading] = useState(false);
 
+  /* ===========================
+     AUTO REDIRECT IF LOGGED IN
+  ============================ */
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const isAdmin = localStorage.getItem("isAdminLoggedIn") === "true";
-    if (token && isAdmin) navigate("/admin/dashboard");
+
+    if (token) {
+      navigate("/admin/dashboard", { replace: true });
+    }
   }, [navigate]);
 
+  /* ===========================
+     INPUT CHANGE
+  ============================ */
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
+  /* ===========================
+     SUBMIT
+  ============================ */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Always clear old login data first
-      localStorage.removeItem("token");
-      localStorage.removeItem("isAdminLoggedIn");
-
       if (mode === "login") {
         const res = await axios.post("/admin/login", {
           email: form.email,
           password: form.password,
         });
 
-        // Save new session
+        // ✅ SAVE TOKEN ONLY
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("isAdminLoggedIn", "true");
 
-        alert("✅ Login Successful!");
+        alert("✅ Login Successful");
         navigate("/admin/dashboard");
+
       } else {
-        await axios.post("/admin/register", form);
-        alert("✅ Registration successful! Please login.");
+        await axios.post("/admin/register", {
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          companyName: form.companyName, // 🔥 IMPORTANT
+        });
+
+        alert("✅ Registration successful! Now login.");
         navigate("/admin/login");
       }
+
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.message || "❌ Something went wrong");
+      console.log("AUTH ERROR:", err.response?.data || err.message);
+
+      alert(
+        err.response?.data?.message ||
+        "❌ Something went wrong"
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  /* ===========================
+     UI
+  ============================ */
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#f8f9fa",
-        fontFamily: "'Poppins', sans-serif",
-      }}
-    >
-      <div
-        style={{
-          background: "#fff",
-          padding: "2rem",
-          borderRadius: "10px",
-          width: "100%",
-          maxWidth: "400px",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
-        }}
-      >
-        <h2 style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h2 style={styles.title}>
           {mode === "login" ? "Admin Login" : "Admin Register"}
         </h2>
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-        >
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+
+          {/* NAME */}
           {mode === "register" && (
             <input
               type="text"
@@ -86,8 +96,24 @@ const AdminAuth = ({ mode = "login" }) => {
               value={form.name}
               onChange={handleChange}
               required
+              style={styles.input}
             />
           )}
+
+          {/* COMPANY */}
+          {mode === "register" && (
+            <input
+              type="text"
+              name="companyName"
+              placeholder="Company Name"
+              value={form.companyName}
+              onChange={handleChange}
+              required
+              style={styles.input}
+            />
+          )}
+
+          {/* EMAIL */}
           <input
             type="email"
             name="email"
@@ -95,7 +121,10 @@ const AdminAuth = ({ mode = "login" }) => {
             value={form.email}
             onChange={handleChange}
             required
+            style={styles.input}
           />
+
+          {/* PASSWORD */}
           <input
             type="password"
             name="password"
@@ -103,18 +132,14 @@ const AdminAuth = ({ mode = "login" }) => {
             value={form.password}
             onChange={handleChange}
             required
+            style={styles.input}
           />
+
+          {/* BUTTON */}
           <button
             type="submit"
-            style={{
-              padding: "12px",
-              border: "none",
-              borderRadius: "6px",
-              background: mode === "login" ? "#00cec9" : "#6c5ce7",
-              color: "#fff",
-              cursor: "pointer",
-              opacity: loading ? 0.7 : 1,
-            }}
+            disabled={loading}
+            style={styles.button}
           >
             {loading
               ? "Processing..."
@@ -123,22 +148,14 @@ const AdminAuth = ({ mode = "login" }) => {
               : "🚀 Register"}
           </button>
         </form>
-        <p
-          style={{
-            marginTop: "1rem",
-            textAlign: "center",
-            color: "#555",
-          }}
-        >
+
+        {/* SWITCH */}
+        <p style={styles.switch}>
           {mode === "login"
             ? "Don’t have an account?"
             : "Already have an account?"}{" "}
           <span
-            style={{
-              color: mode === "login" ? "#00cec9" : "#6c5ce7",
-              cursor: "pointer",
-              textDecoration: "underline",
-            }}
+            style={styles.link}
             onClick={() =>
               navigate(mode === "login" ? "/admin/register" : "/admin/login")
             }
@@ -149,6 +166,55 @@ const AdminAuth = ({ mode = "login" }) => {
       </div>
     </div>
   );
+};
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#f4f6f9",
+  },
+  card: {
+    background: "#fff",
+    padding: "30px",
+    borderRadius: "14px",
+    width: "100%",
+    maxWidth: "420px",
+    boxShadow: "0 10px 25px rgba(0,0,0,.1)",
+  },
+  title: {
+    textAlign: "center",
+    marginBottom: "20px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  input: {
+    padding: "12px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
+  button: {
+    padding: "12px",
+    border: "none",
+    borderRadius: "8px",
+    background: "#0d6efd",
+    color: "#fff",
+    cursor: "pointer",
+  },
+  switch: {
+    marginTop: "15px",
+    textAlign: "center",
+  },
+  link: {
+    color: "#0d6efd",
+    cursor: "pointer",
+    textDecoration: "underline",
+  },
 };
 
 export default AdminAuth;

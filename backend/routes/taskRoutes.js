@@ -1,15 +1,35 @@
 const express = require("express");
 const router = express.Router();
-const Task = require("../models/Task");
-const { verifyAdmin, verifyDeveloper } = require("../middleware/authMiddleware");
 
-// 🛠️ Add Task (admin only)
+const Task = require("../models/Task");
+const Developer = require("../models/Developer");
+const Admin = require("../models/Admin");
+
+const sendMail = require("../utils/sendMail");
+
+const {
+  verifyAdmin,
+  verifyDeveloper,
+} = require("../middleware/authMiddleware");
+
+/* ======================
+   CREATE TASK
+====================== */
 router.post("/", verifyAdmin, async (req, res) => {
   try {
     const { title, description, developerId, status, deadline } = req.body;
 
     if (!title || !developerId || !deadline) {
-      return res.status(400).json({ message: "Title, Developer, and Deadline are required" });
+      return res.status(400).json({ message: "Missing fields" });
+    }
+
+    const developer = await Developer.findOne({
+      _id: developerId,
+      companyId: req.admin.companyId, // 🔥 security
+    });
+
+    if (!developer) {
+      return res.status(404).json({ message: "Developer not found" });
     }
 
     const newTask = new Task({
@@ -18,68 +38,77 @@ router.post("/", verifyAdmin, async (req, res) => {
       developer: developerId,
       status: status || "Pending",
       deadline,
-      createdBy: req.admin.id,
+      createdBy: req.admin._id,
+      companyId: req.admin.companyId, // 🔥 IMPORTANT
     });
 
-    const saved = await newTask.save();
-    res.status(201).json({ message: "Task added successfully", task: saved });
-  } catch (err) {
-    console.error("Error creating task:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-});
+    const savedTask = await newTask.save();
 
-// 🛠️ Get Tasks (admin only — filter by admin)
-router.get("/", verifyAdmin, async (req, res) => {
-  try {
-    const tasks = await Task.find({ createdBy: req.admin.id })
-      .populate("developer", "name email");
-    res.json(tasks);
-  } catch (err) {
-    console.error("Error fetching tasks:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-});
-
-// 🛠️ Delete Task (admin only)
-router.delete("/:id", verifyAdmin, async (req, res) => {
-  try {
-    const deleted = await Task.findOneAndDelete({
-      _id: req.params.id,
-      createdBy: req.admin.id,
-    });
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Task not found or not authorized" });
-    }
-
-    res.json({ message: "Task deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting task:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-});
-
-// 🛠️ Update Task Status (developer updates their task)
-router.patch("/:id", verifyDeveloper, async (req, res) => {
-  try {
-    const { status } = req.body;
-
-    const task = await Task.findOneAndUpdate(
-      { _id: req.params.id, developer: req.developer.id }, // ensure only assigned dev can update
-      { status },
-      { new: true }
+    await sendMail(
+      developer.email,
+      "New Task Assigned",
+      `Task: ${title}\nDeadline: ${new Date(deadline).toLocaleString()}`
     );
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found or not authorized" });
-    }
-
-    res.json({ message: "Task updated successfully", task });
+    res.json({ message: "Task created", task: savedTask });
   } catch (err) {
-    console.error("Error updating task:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    res.status(500).json({ message: "Server error" });
   }
+});
+
+/* ======================
+   GET TASKS (ADMIN)
+====================== */
+router.get("/", verifyAdmin, async (req, res) => {
+  const tasks = await Task.find({
+    companyId: req.admin.companyId, // 🔥 FIX
+  }).populate("developer", "name email");
+
+  res.json(tasks);
+});
+
+/* ======================
+   DELETE TASK
+====================== */
+router.delete("/:id", verifyAdmin, async (req, res) => {
+  const deleted = await Task.findOneAndDelete({
+    _id: req.params.id,
+    companyId: req.admin.companyId, // 🔥 FIX
+  });
+
+  if (!deleted) {
+    return res.status(404).json({ message: "Not found" });
+  }
+
+  res.json({ message: "Deleted" });
+});
+
+/* ======================
+   UPDATE TASK (DEV)
+====================== */
+router.patch("/:id", verifyDeveloper, async (req, res) => {
+  const task = await Task.findOne({
+    _id: req.params.id,
+    developer: req.developer._id,
+  });
+
+  if (!task) {
+    return res.status(404).json({ message: "Task not found" });
+  }
+
+  const now = new Date();
+  const deadline = new Date(task.deadline);
+
+  let finalStatus = req.body.status;
+
+  if (finalStatus === "Completed") {
+    finalStatus = now > deadline ? "Late Completed" : "Completed";
+  }
+
+  task.status = finalStatus;
+  await task.save();
+
+  res.json({ message: "Updated", task });
 });
 
 module.exports = router;

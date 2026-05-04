@@ -1,64 +1,133 @@
-import React from "react";
+// AdminSidebar.jsx
+
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import axios from "../../api/axios";
+import "../Styles/AdminSidebar.css";
 
-const sidebarStyle = {
-  width: "220px",
-  backgroundColor: "#2c3e50",
-  color: "white",
-  display: "flex",
-  flexDirection: "column",
-  paddingTop: "20px",
-  position: "fixed",
-  top: "70px",
-  left: 0,
-  height: "calc(100vh - 70px)",
-};
-
-const linkStyle = {
-  padding: "15px 20px",
-  textDecoration: "none",
-  color: "white",
-  fontWeight: "500",
-  fontSize: "16px",
-  display: "block",
-};
-
-const activeLinkStyle = {
-  backgroundColor: "#1abc9c",
-  color: "#fff",
-  fontWeight: "700",
-};
+import {
+  FaHome,
+  FaTachometerAlt,
+  FaUserPlus,
+  FaUsers,
+  FaTasks,
+  FaClipboardList,
+  FaCheckCircle,
+  FaClock,
+  FaSpinner,
+  FaUserCircle,
+  FaSignOutAlt,
+} from "react-icons/fa";
 
 const AdminSidebar = () => {
+  const [admin, setAdmin] = useState({
+    name: "Admin",
+    profilePic: "",
+  });
+
+  const [open, setOpen] = useState(false);
+
+  const token = localStorage.getItem("token");
+
+  const fetchAdmin = async () => {
+    try {
+      const res = await axios.get("/admin/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setAdmin(res.data.admin);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    fetchAdmin();
+  }, []);
+
+  const closeMenu = () => setOpen(false);
+
   return (
-    <nav style={sidebarStyle}>
-      <h2 style={{ textAlign: "center", marginBottom: "30px", fontSize: "24px" }}>
-        Admin Panel
-      </h2>
+    <>
+      <button className="menu-btn" onClick={() => setOpen(true)}>
+        ☰
+      </button>
 
-      <NavLink to="/admin/dashboard" style={({ isActive }) => isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle}>
-        Dashboard
-      </NavLink>
-      <NavLink to="/admin/add-developer" style={({ isActive }) => isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle}>
-        Add Developer
-      </NavLink>
-      <NavLink to="/admin/all-developer" style={({ isActive }) => isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle}>
-        All Developers
-      </NavLink>
-      <NavLink to="/admin/add-task" style={({ isActive }) => isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle}>
-        Add Task
-      </NavLink>
-      <NavLink to="/admin/all-task" style={({ isActive }) => isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle}>
-        All Tasks
-      </NavLink> 
-       <NavLink to="/admin/completed-task" style={({ isActive }) => (isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle)}>Completed Tasks</NavLink>
-       <NavLink to="/admin/pending-task" style={({ isActive }) => (isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle)}>Pending Tasks</NavLink>
-      <NavLink to="/admin/progress-task" style={({ isActive }) => (isActive ? { ...linkStyle, ...activeLinkStyle } : linkStyle)}>Progress Tasks</NavLink>
+      {open && <div className="overlay" onClick={closeMenu}></div>}
 
-      <NavLink to="/admin/logout" style={linkStyle}>
-        Logout
-      </NavLink>
-    </nav>
+      <nav className={open ? "sidebar open" : "sidebar"}>
+        <button className="close-btn" onClick={closeMenu}>
+          ✕
+        </button>
+
+        {/* PROFILE */}
+        <div className="sidebar-top">
+          {admin.profilePic ? (
+            <img
+              src={`http://localhost:4000/uploads/${admin.profilePic}`}
+              alt="admin"
+              className="sidebar-img"
+            />
+          ) : (
+            <div className="sidebar-avatar">
+              {admin.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
+
+          <h3>{admin.name}</h3>
+          <p>Administrator</p>
+        </div>
+
+        {/* LINKS */}
+        <div className="sidebar-links">
+
+          <NavLink to="/" onClick={closeMenu}>
+            <FaHome /> Home
+          </NavLink>
+
+          <NavLink to="/admin/dashboard" end onClick={closeMenu}>
+            <FaTachometerAlt /> Dashboard
+          </NavLink>
+
+          <NavLink to="/admin/add-developer" onClick={closeMenu}>
+            <FaUserPlus /> Add Developer
+          </NavLink>
+
+          <NavLink to="/admin/all-developer" onClick={closeMenu}>
+            <FaUsers /> All Developers
+          </NavLink>
+
+          <NavLink to="/admin/add-task" onClick={closeMenu}>
+            <FaTasks /> Add Task
+          </NavLink>
+
+          <NavLink to="/admin/all-task" onClick={closeMenu}>
+            <FaClipboardList /> All Tasks
+          </NavLink>
+
+          <NavLink to="/admin/completed-task" onClick={closeMenu}>
+            <FaCheckCircle /> Completed
+          </NavLink>
+
+          <NavLink to="/admin/pending-task" onClick={closeMenu}>
+            <FaClock /> Pending
+          </NavLink>
+
+          <NavLink to="/admin/progress-task" onClick={closeMenu}>
+            <FaSpinner /> Progress
+          </NavLink>
+
+          <NavLink to="/admin/profile" onClick={closeMenu}>
+            <FaUserCircle /> Profile
+          </NavLink>
+
+          <NavLink to="/admin/logout" onClick={closeMenu}>
+            <FaSignOutAlt /> Logout
+          </NavLink>
+
+        </div>
+      </nav>
+    </>
   );
 };
 
