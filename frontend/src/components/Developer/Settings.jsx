@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "../../api/axios";
 import "../Styles/DeveloperSettings.css";
 
 const Settings = () => {
