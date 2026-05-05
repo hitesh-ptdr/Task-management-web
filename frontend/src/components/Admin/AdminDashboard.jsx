@@ -347,20 +347,20 @@ const AdminDashboard = () => {
       return;
     }
 
-    const verifyAdmin = async () => {
-      try {
-        const res = await axios.get("/admin/verify"); // ✅ FIXED
+ const verifyAdmin = async () => {
+  try {
+    const res = await axios.get("/admin/verify-admin");
 
-        if (res.data?.admin) {
-          fetchTasks();
-        } else {
-          navigate("/admin/login");
-        }
-      } catch (error) {
-        console.log("Verify error:", error);
-        navigate("/admin/login");
-      }
-    };
+    if (res.data?.admin) {
+      fetchTasks();
+    } else {
+      navigate("/admin/login");
+    }
+  } catch (error) {
+    console.log("Verify error:", error);
+    navigate("/admin/login");
+  }
+};
 
     verifyAdmin();
 
