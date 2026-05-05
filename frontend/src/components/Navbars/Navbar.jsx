@@ -42,7 +42,7 @@ return (
 <header className="navbar">
 
 <Link to="/" className="nav-logo">
-<span>Task</span>Manager.
+<span>Task</span>Manager
 </Link>
 
 <button
