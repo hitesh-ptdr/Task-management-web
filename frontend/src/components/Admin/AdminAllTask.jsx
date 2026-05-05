@@ -85,7 +85,7 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axios";
-import "../styles/AdminAllTask.css";
+import "../Styles/AdminAllTask.css";
 
 const AdminAllTask = () => {
   const [tasks, setTasks] = useState([]);
