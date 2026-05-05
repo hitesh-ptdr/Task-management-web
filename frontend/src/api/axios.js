@@ -12,11 +12,10 @@ instance.interceptors.request.use(
     const adminToken = localStorage.getItem("token");
     const devToken = localStorage.getItem("devToken");
 
-    if (adminToken) {
+    // 🔥 route के हिसाब से सही token
+    if (config.url?.startsWith("/admin") && adminToken) {
       config.headers.Authorization = `Bearer ${adminToken}`;
-    }
-
-    if (devToken) {
+    } else if (config.url?.startsWith("/developers") && devToken) {
       config.headers.Authorization = `Bearer ${devToken}`;
     }
 
