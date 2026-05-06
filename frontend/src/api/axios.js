@@ -27,28 +27,54 @@ instance.interceptors.request.use(
         "devToken"
       );
 
-    // ADMIN ROUTES
+    /* =========================
+       ADMIN ROUTES
+    ========================= */
+
     if (
-      config.url?.startsWith(
+
+      config.url?.includes(
         "/admin"
-      ) &&
-      adminToken
+      )
+
+      ||
+
+      config.url?.includes(
+        "/developers"
+      )
+
+      ||
+
+      config.url?.includes(
+        "/tasks"
+      )
+
     ) {
 
-      config.headers.Authorization =
-        `Bearer ${adminToken}`;
+      if (adminToken) {
+
+        config.headers.Authorization =
+          `Bearer ${adminToken}`;
+      }
     }
 
-    // DEVELOPER ROUTES
-    else if (
-      config.url?.startsWith(
-        "/developers"
-      ) &&
-      devToken
+    /* =========================
+       DEVELOPER ROUTES
+    ========================= */
+
+    if (
+
+      config.url?.includes(
+        "/developer"
+      )
+
     ) {
 
-      config.headers.Authorization =
-        `Bearer ${devToken}`;
+      if (devToken) {
+
+        config.headers.Authorization =
+          `Bearer ${devToken}`;
+      }
     }
 
     return config;

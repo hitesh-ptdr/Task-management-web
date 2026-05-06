@@ -86,32 +86,27 @@ const DeveloperAuth = () => {
     useState(false);
 
   /* AUTO REDIRECT */
-  useEffect(() => {
+ useEffect(() => {
 
-    const token =
-      localStorage.getItem(
-        "devToken"
-      );
+  const token =
+    localStorage.getItem(
+      "devToken"
+    );
 
-    const isDevLogged =
-      localStorage.getItem(
-        "isDevLoggedIn"
-      ) === "true";
+  if (
+    token &&
+    window.location.pathname === "/developer/login"
+  ) {
 
-    if (
-      token &&
-      isDevLogged
-    ) {
+    navigate(
+      "/developer/dashboard",
+      {
+        replace: true,
+      }
+    );
+  }
 
-      navigate(
-        "/developer/dashboard",
-        {
-          replace: true,
-        }
-      );
-    }
-
-  }, [navigate]);
+}, []);
 
   /* INPUT */
   const handleChange = (e) =>
