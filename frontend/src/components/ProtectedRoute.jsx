@@ -1,30 +1,50 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = ({ children, role }) => {
+import {
+  Navigate,
+} from "react-router-dom";
 
-  // ✅ Admin token
-  const adminToken = localStorage.getItem("token");
+const ProtectedRoute = ({
+  children,
+  role,
+}) => {
 
-  // ✅ Developer token
-  const devToken = localStorage.getItem("devToken");
+  const adminToken =
+    localStorage.getItem(
+      "adminToken"
+    );
 
-  /* ===========================
-     ADMIN PROTECTION
-  ============================ */
+  const devToken =
+    localStorage.getItem(
+      "devToken"
+    );
+
+  // ADMIN
   if (role === "admin") {
-    if (!adminToken) {
-      return <Navigate to="/admin/login" replace />;
-    }
+
+    return adminToken
+      ? children
+      : (
+        <Navigate
+          to="/admin/login"
+          replace
+        />
+      );
   }
 
-  /* ===========================
-     DEVELOPER PROTECTION
-  ============================ */
-  if (role === "developer") {
-    if (!devToken) {
-      return <Navigate to="/developer/login" replace />;
-    }
+  // DEVELOPER
+  if (
+    role === "developer"
+  ) {
+
+    return devToken
+      ? children
+      : (
+        <Navigate
+          to="/developer/login"
+          replace
+        />
+      );
   }
 
   return children;

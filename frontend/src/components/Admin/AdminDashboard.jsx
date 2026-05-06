@@ -541,7 +541,7 @@ const AdminDashboard = () => {
                 <td>{i + 1}</td>
                 <td>{task.title}</td>
                 <td>{task.developer?.name || "N/A"}</td>
-                <td>{new Date(task.deadline).toLocaleDateString()}</td>
+                <td>{new Date(task.deadline).toLocaleDateString()}</td>   
                 <td>{task.status}</td>
               </tr>
             ))}
