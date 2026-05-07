@@ -1,5 +1,3 @@
-// AdminAuth.jsx
-
 import React, {
   useState,
   useEffect,
@@ -29,6 +27,10 @@ const AdminAuth = ({
   const [loading, setLoading] =
     useState(false);
 
+  const [checkingAuth,
+    setCheckingAuth] =
+    useState(true);
+
   /* ===========================
      AUTO LOGIN CHECK
   =========================== */
@@ -39,47 +41,40 @@ const AdminAuth = ({
         "adminToken"
       );
 
-    // ONLY LOGIN PAGE
-    if (
-      token &&
-      window.location.pathname ===
-        "/admin/login"
-    ) {
-
-      axios
-        .get(
-          "/admin/verify-admin",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        )
-
-        .then(() => {
-
-          navigate(
-            "/admin/dashboard",
-            {
-              replace: true,
-            }
-          );
-
-        })
-
-        .catch(() => {
-
-          // REMOVE INVALID TOKEN
-          localStorage.removeItem(
-            "adminToken"
-          );
-
-          localStorage.removeItem(
-            "adminData"
-          );
-        });
+    // NO TOKEN
+    if (!token) {
+      setCheckingAuth(false);
+      return;
     }
+
+    // VERIFY TOKEN
+    axios
+      .get(
+        "/admin/verify-admin"
+      )
+
+      .then(() => {
+
+        navigate(
+          "/admin/dashboard",
+          {
+            replace: true,
+          }
+        );
+      })
+
+      .catch(() => {
+
+        localStorage.removeItem(
+          "adminToken"
+        );
+
+        localStorage.removeItem(
+          "adminData"
+        );
+
+        setCheckingAuth(false);
+      });
 
   }, []);
 
@@ -100,6 +95,7 @@ const AdminAuth = ({
     async (e) => {
 
       e.preventDefault();
+
       setLoading(true);
 
       try {
@@ -121,7 +117,6 @@ const AdminAuth = ({
               }
             );
 
-          // SAVE TOKEN
           localStorage.setItem(
             "adminToken",
             res.data.token
@@ -132,10 +127,6 @@ const AdminAuth = ({
             JSON.stringify(
               res.data
             )
-          );
-
-          alert(
-            "✅ Login Successful"
           );
 
           navigate(
@@ -177,18 +168,11 @@ const AdminAuth = ({
 
       } catch (err) {
 
-        console.log(
-          "AUTH ERROR:",
-          err.response
-            ?.data ||
-            err.message
-        );
-
         alert(
           err.response
             ?.data
             ?.message ||
-            "❌ Something went wrong"
+            "Something went wrong"
         );
 
       } finally {
@@ -196,6 +180,11 @@ const AdminAuth = ({
         setLoading(false);
       }
     };
+
+  // 🔥 STOP LOGIN FLASH
+  if (checkingAuth) {
+    return null;
+  }
 
   return (
     <div style={styles.page}>
@@ -217,7 +206,6 @@ const AdminAuth = ({
           style={styles.form}
         >
 
-          {/* REGISTER INPUTS */}
           {mode ===
             "register" && (
             <>
@@ -255,7 +243,6 @@ const AdminAuth = ({
             </>
           )}
 
-          {/* EMAIL */}
           <input
             type="email"
             name="email"
@@ -268,7 +255,6 @@ const AdminAuth = ({
             style={styles.input}
           />
 
-          {/* PASSWORD */}
           <input
             type="password"
             name="password"
@@ -283,7 +269,6 @@ const AdminAuth = ({
             style={styles.input}
           />
 
-          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
@@ -301,79 +286,20 @@ const AdminAuth = ({
 
         </form>
 
-        {/* SWITCH */}
-        <p
-          style={{
-            marginTop: "15px",
-            textAlign:
-              "center",
-          }}
-        >
-
-          {mode ===
-            "login"
-            ? "Don’t have an account?"
-            : "Already have an account?"}
-
-          {" "}
-
-          <span
-            style={{
-              color:
-                "#0d6efd",
-
-              cursor:
-                "pointer",
-
-              textDecoration:
-                "underline",
-
-              fontWeight:
-                "600",
-            }}
-
-            onClick={() =>
-              navigate(
-                mode ===
-                  "login"
-                  ? "/admin/register"
-                  : "/admin/login"
-              )
-            }
-          >
-
-            {mode ===
-              "login"
-              ? "Register here"
-              : "Login here"}
-
-          </span>
-
-        </p>
-
       </div>
 
     </div>
   );
 };
 
-/* ===========================
-   STYLES
-=========================== */
 const styles = {
-
   page: {
-    minHeight:
-      "100vh",
-
+    minHeight: "100vh",
     display: "flex",
-
     justifyContent:
       "center",
-
     alignItems:
       "center",
-
     background:
       "#f4f6f9",
   },
@@ -381,18 +307,10 @@ const styles = {
   card: {
     background:
       "#fff",
-
-    padding:
-      "30px",
-
-    borderRadius:
-      "14px",
-
+    padding: "30px",
+    borderRadius: "14px",
     width: "100%",
-
-    maxWidth:
-      "420px",
-
+    maxWidth: "420px",
     boxShadow:
       "0 10px 25px rgba(0,0,0,.1)",
   },
@@ -400,57 +318,35 @@ const styles = {
   title: {
     textAlign:
       "center",
-
     marginBottom:
       "20px",
   },
 
   form: {
     display: "flex",
-
     flexDirection:
       "column",
-
     gap: "12px",
   },
 
   input: {
-    padding:
-      "12px",
-
-    borderRadius:
-      "8px",
-
+    padding: "12px",
+    borderRadius: "8px",
     border:
       "1px solid #ccc",
-
-    outline:
-      "none",
   },
 
   button: {
-    padding:
-      "12px",
-
-    border:
-      "none",
-
-    borderRadius:
-      "8px",
-
+    padding: "12px",
+    border: "none",
+    borderRadius: "8px",
     background:
       "#0d6efd",
-
-    color:
-      "#fff",
-
-    cursor:
-      "pointer",
-
+    color: "#fff",
+    cursor: "pointer",
     fontWeight:
       "600",
   },
-
 };
 
 export default AdminAuth;

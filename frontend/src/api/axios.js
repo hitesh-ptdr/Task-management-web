@@ -53,13 +53,14 @@ instance.interceptors.request.use(
        DEVELOPER ROUTES
     =================================== */
 
-    const developerRoutes = [
-      "/developers/my",
-      "/developers/profile",
-      "/developers/update-profile",
-      "/developers/upload-photo",
-      "/developers/tasks",
-    ];
+const developerRoutes = [
+  "/developers/verify",
+  "/developers/my",
+  "/developers/profile",
+  "/developers/update-profile",
+  "/developers/upload-photo",
+  "/developers/tasks",
+];
 
     const isDeveloperRoute =
       developerRoutes.some((route) =>

@@ -258,7 +258,7 @@ import Settings from "./components/Developer/Settings";
 /* PROTECTED */
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import DeveloperProtectedRoute from "./components/Developer/DeveloperProtectedRoute";
+// import DeveloperProtectedRoute from "./components/Developer/DeveloperProtectedRoute";
 
 /* ===========================
    PUBLIC LAYOUT
@@ -410,14 +410,14 @@ const App = () => {
           {/* ===========================
               DEVELOPER PANEL
           =========================== */}
-          <Route
-            path="dashboard"
-            element={
-              <DeveloperProtectedRoute>
-                <DeveloperSidebarLayout />
-              </DeveloperProtectedRoute>
-            }
-          >
+   <Route
+  path="dashboard"
+  element={
+    <ProtectedRoute role="developer">
+      <DeveloperSidebarLayout />
+    </ProtectedRoute>
+  }
+>
 
             <Route
               index
