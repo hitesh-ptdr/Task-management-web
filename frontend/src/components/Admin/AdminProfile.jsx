@@ -111,7 +111,7 @@ const AdminProfile = () => {
           <img
             src={
               profile.profilePic
-                ? `http://localhost:4000/uploads/${profile.profilePic}`
+                ? `https://task-management-web-umd5.onrender.com/uploads/${profile.profilePic}`
                 : `https://ui-avatars.com/api/?name=${profile.name || "Admin"}`
             }
             alt="Admin"
