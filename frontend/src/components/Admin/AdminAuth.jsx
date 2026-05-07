@@ -4,6 +4,7 @@ import React, {
 
 import {
   useNavigate,
+  Link,
 } from "react-router-dom";
 
 import axios from "../../api/axios";
@@ -259,6 +260,55 @@ const AdminAuth = ({
 
         </form>
 
+        {/* SWITCH AUTH */}
+
+        <div
+          style={{
+            marginTop:"18px",
+            textAlign:"center",
+            fontSize:"15px",
+            color:"#555",
+          }}
+        >
+
+          {mode === "login"
+            ? (
+              <>
+                Don't have an account?
+
+                <Link
+                  to="/admin/register"
+                  style={{
+                    color:"#0d6efd",
+                    fontWeight:"700",
+                    marginLeft:"6px",
+                    textDecoration:"none",
+                  }}
+                >
+                  Register
+                </Link>
+              </>
+            )
+            : (
+              <>
+                Already have an account?
+
+                <Link
+                  to="/admin/login"
+                  style={{
+                    color:"#0d6efd",
+                    fontWeight:"700",
+                    marginLeft:"6px",
+                    textDecoration:"none",
+                  }}
+                >
+                  Login
+                </Link>
+              </>
+            )}
+
+        </div>
+
       </div>
 
     </div>
@@ -266,6 +316,7 @@ const AdminAuth = ({
 };
 
 const styles = {
+
   page: {
     minHeight: "100vh",
     display: "flex",
@@ -275,6 +326,7 @@ const styles = {
       "center",
     background:
       "#f4f6f9",
+    padding:"20px",
   },
 
   card: {
@@ -307,6 +359,7 @@ const styles = {
     borderRadius: "8px",
     border:
       "1px solid #ccc",
+    outline:"none",
   },
 
   button: {

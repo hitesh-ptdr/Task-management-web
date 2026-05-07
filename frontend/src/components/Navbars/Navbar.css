@@ -85,41 +85,13 @@ display:none;
 
 }
 
-.nav-actions{
-display:flex;
-gap:12px;
-align-items:center;
-}
-
-.register-btn{
-background:#111827 !important;
-color:white !important;
-}
-
-/* MOBILE */
 
 /* MOBILE */
 
 @media(max-width:768px){
 
-.navbar{
-width:94%;
-padding:0 16px;
-height:68px;
-border-radius:18px;
-}
-
-.nav-logo{
-font-size:22px;
-}
-
 .menu-toggle{
-display:flex;
-align-items:center;
-justify-content:center;
-width:42px;
-height:42px;
-font-size:20px;
+display:block;
 }
 
 .nav-menu{
@@ -133,51 +105,18 @@ border-radius:18px;
 flex-direction:column;
 background:#111827;
 border:1px solid rgba(255,255,255,.08);
-box-shadow:0 12px 25px rgba(0,0,0,.25);
-gap:14px;
 }
 
 .nav-menu.active{
 display:flex;
-animation:slideDown .3s ease;
 }
 
 .nav-menu a{
 width:100%;
 text-align:center;
-padding:14px;
+padding:12px;
 background:#1f2937;
 border-radius:12px;
-font-size:15px;
-}
-
-.nav-actions{
-width:100%;
-display:flex;
-flex-direction:column;
-gap:14px;
-}
-
-.nav-btn,
-.register-btn{
-width:100%;
-text-align:center;
-}
-
-}
-
-/* ANIMATION */
-
-@keyframes slideDown{
-
-from{
-opacity:0;
-transform:translateY(-10px);
-}
-
-to{
-opacity:1;
-transform:translateY(0);
 }
 
 }
