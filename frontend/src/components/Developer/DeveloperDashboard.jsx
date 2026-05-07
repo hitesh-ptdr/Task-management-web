@@ -1,157 +1,263 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import axios from "../../api/axios";
+
 import "../Styles/DeveloperDashboard.css";
 
 const DeveloperDashboard = () => {
-  const [tasks, setTasks] = useState([]);
-  const navigate = useNavigate();
 
-  const fetchTasks = async (token) => {
-    try {
-      const res = await axios.get("/developers/tasks", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const [tasks, setTasks] =
+    useState([]);
 
-      setTasks(res.data);
-    } catch (err) {
-      console.error("Error fetching tasks:", err);
-    }
-  };
+  const navigate =
+    useNavigate();
 
-  useEffect(() => {
-    const devToken = localStorage.getItem("devToken");
-    const isDevLoggedIn =
-      localStorage.getItem("isDevLoggedIn");
+  /* ===========================
+     FETCH TASKS
+  =========================== */
+  const fetchTasks =
+    async (token) => {
 
-    if (!devToken || isDevLoggedIn !== "true") {
-      navigate("/developer/login");
-      return;
-    }
-
-    const verify = async () => {
       try {
-        const res = await axios.get(
-          "/developers/verify",
-          {
-            headers: {
-              Authorization: `Bearer ${devToken}`,
-            },
-          }
+
+        const res =
+          await axios.get(
+            "/developers/tasks",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        setTasks(
+          res.data
         );
 
-        if (res.data?.developer) {
-          fetchTasks(devToken);
-        } else {
-          navigate("/developer/login");
-        }
-      } catch (error) {
-        navigate("/developer/login");
+      } catch (err) {
+
+        console.error(
+          "Error fetching tasks:",
+          err
+        );
       }
     };
 
-    verify();
-  }, [navigate]);
+  /* ===========================
+     AUTH CHECK
+  =========================== */
+  useEffect(() => {
 
-  const pending = tasks.filter(
-    (t) => t.status?.toLowerCase() === "pending"
-  );
+    const devToken =
+      localStorage.getItem(
+        "devToken"
+      );
 
-  const progress = tasks.filter(
-    (t) =>
-      t.status?.toLowerCase() ===
-      "in-progress"
-  );
+    // NO TOKEN
+    if (!devToken) {
 
-  const completed = tasks.filter((t) =>
-    t.status
-      ?.toLowerCase()
-      .includes("completed")
-  );
+      navigate(
+        "/developer/login",
+        {
+          replace: true,
+        }
+      );
 
-  const overdue = tasks.filter(
-    (t) =>
-      new Date(t.deadline) < new Date() &&
-      !t.status
+      return;
+    }
+
+    // FETCH TASKS
+    fetchTasks(devToken);
+
+  }, []);
+
+  /* ===========================
+     FILTERS
+  =========================== */
+
+  const pending =
+    tasks.filter(
+      (t) =>
+        t.status
+          ?.toLowerCase() ===
+        "pending"
+    );
+
+  const progress =
+    tasks.filter(
+      (t) =>
+        t.status
+          ?.toLowerCase() ===
+        "in-progress"
+    );
+
+  const completed =
+    tasks.filter((t) =>
+      t.status
         ?.toLowerCase()
-        .includes("completed")
-  );
-  const hour = new Date().getHours();
+        .includes(
+          "completed"
+        )
+    );
 
-const greeting =
-  hour < 12
-    ? "Good Morning"
-    : hour < 17
-    ? "Good Afternoon"
-    : "Good Evening";
+  const overdue =
+    tasks.filter(
+      (t) =>
+        new Date(
+          t.deadline
+        ) < new Date() &&
+        !t.status
+          ?.toLowerCase()
+          .includes(
+            "completed"
+          )
+    );
+
+  /* ===========================
+     GREETING
+  =========================== */
+
+  const hour =
+    new Date().getHours();
+
+  const greeting =
+    hour < 12
+      ? "Good Morning"
+      : hour < 17
+      ? "Good Afternoon"
+      : "Good Evening";
 
   return (
     <div className="dev-wrap">
-      {/* Header */}
+
+      {/* HEADER */}
       <div className="welcome-card">
-        <h1>{greeting}, Developer 👋</h1>
+
+        <h1>
+          {greeting},
+          Developer 👋
+        </h1>
+
         <p>
-          Manage your assigned work &
-          deadlines.
+          Manage your assigned
+          work & deadlines.
         </p>
+
       </div>
 
-      {/* Cards */}
+      {/* STATS */}
       <div className="stats-row">
+
         <div className="mini-card total">
-          <span>Total Tasks</span>
-          <h3>{tasks.length}</h3>
+          <span>
+            Total Tasks
+          </span>
+          <h3>
+            {tasks.length}
+          </h3>
         </div>
 
         <div className="mini-card pending">
-          <span>Pending</span>
-          <h3>{pending.length}</h3>
+          <span>
+            Pending
+          </span>
+          <h3>
+            {pending.length}
+          </h3>
         </div>
 
         <div className="mini-card in-progress">
-          <span>in-progress</span>
-          <h3>{progress.length}</h3>
+          <span>
+            In Progress
+          </span>
+          <h3>
+            {progress.length}
+          </h3>
         </div>
 
         <div className="mini-card completed">
-          <span>Completed</span>
-          <h3>{completed.length}</h3>
+          <span>
+            Completed
+          </span>
+          <h3>
+            {
+              completed.length
+            }
+          </h3>
         </div>
 
         <div className="mini-card overdue">
-          <span>Overdue</span>
-          <h3>{overdue.length}</h3>
+          <span>
+            Overdue
+          </span>
+          <h3>
+            {overdue.length}
+          </h3>
         </div>
+
       </div>
 
-      {/* Table */}
+      {/* TABLE */}
       <div className="table-box">
-        <h2>My Recent Tasks</h2>
+
+        <h2>
+          My Recent Tasks
+        </h2>
 
         <table className="task-table">
+
           <thead>
+
             <tr>
+
               <th>#</th>
+
               <th>Task</th>
+
               <th>Created</th>
+
               <th>Deadline</th>
+
               <th>Status</th>
+
             </tr>
+
           </thead>
 
           <tbody>
+
             {tasks.length === 0 ? (
+
               <tr>
+
                 <td colSpan="5">
                   No tasks assigned
                 </td>
+
               </tr>
+
             ) : (
+
               tasks.map(
-                (task, index) => (
-                  <tr key={task._id}>
+                (
+                  task,
+                  index
+                ) => (
+
+                  <tr
+                    key={
+                      task._id
+                    }
+                  >
+
                     <td>
                       {index + 1}
                     </td>
@@ -161,18 +267,23 @@ const greeting =
                     </td>
 
                     <td>
+
                       {new Date(
                         task.createdAt
                       ).toLocaleDateString()}
+
                     </td>
 
                     <td>
+
                       {new Date(
                         task.deadline
                       ).toLocaleDateString()}
+
                     </td>
 
                     <td>
+
                       <span
                         className={`badge ${task.status
                           .toLowerCase()
@@ -181,16 +292,24 @@ const greeting =
                             "-"
                           )}`}
                       >
+
                         {task.status}
+
                       </span>
+
                     </td>
+
                   </tr>
                 )
               )
             )}
+
           </tbody>
+
         </table>
+
       </div>
+
     </div>
   );
 };

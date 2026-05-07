@@ -1,17 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import React from "react";
 
-const DeveloperProtectedRoute = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
+import {
+  Navigate,
+} from "react-router-dom";
 
-  useEffect(() => {
-    const token = localStorage.getItem("devToken");
-    const isDevLogged = localStorage.getItem("isDevLoggedIn") === "true";
-    setIsAuthenticated(token && isDevLogged);
-  }, []);
+const DeveloperProtectedRoute = ({
+  children,
+}) => {
 
-  if (isAuthenticated === null) return null; // waiting for auth check
-  return isAuthenticated ? children : <Navigate to="/developer/login" />;
+  const token =
+    localStorage.getItem(
+      "devToken"
+    );
+
+  return token
+    ? children
+    : (
+      <Navigate
+        to="/developer/login"
+        replace
+      />
+    );
 };
 
 export default DeveloperProtectedRoute;

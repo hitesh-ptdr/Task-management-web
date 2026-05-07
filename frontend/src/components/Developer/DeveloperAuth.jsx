@@ -85,30 +85,35 @@ const DeveloperAuth = () => {
   const [loading, setLoading] =
     useState(false);
 
-  /* AUTO REDIRECT */
- useEffect(() => {
+  /* ===========================
+     AUTO REDIRECT
+  =========================== */
+  useEffect(() => {
 
-  const token =
-    localStorage.getItem(
-      "devToken"
-    );
+    const token =
+      localStorage.getItem(
+        "devToken"
+      );
 
-  if (
-    token &&
-    window.location.pathname === "/developer/login"
-  ) {
+    if (
+      token &&
+      window.location.pathname ===
+        "/developer/login"
+    ) {
 
-    navigate(
-      "/developer/dashboard",
-      {
-        replace: true,
-      }
-    );
-  }
+      navigate(
+        "/developer/dashboard",
+        {
+          replace: true,
+        }
+      );
+    }
 
-}, []);
+  }, []);
 
-  /* INPUT */
+  /* ===========================
+     INPUT
+  =========================== */
   const handleChange = (e) =>
     setForm({
       ...form,
@@ -116,7 +121,9 @@ const DeveloperAuth = () => {
         e.target.value,
     });
 
-  /* LOGIN */
+  /* ===========================
+     LOGIN
+  =========================== */
   const handleSubmit =
     async (e) => {
 
@@ -137,22 +144,18 @@ const DeveloperAuth = () => {
             }
           );
 
-        // SAVE DEV TOKEN
+        /* SAVE TOKEN */
         localStorage.setItem(
           "devToken",
           res.data.token
         );
 
+        /* SAVE DEV DATA */
         localStorage.setItem(
           "developer",
           JSON.stringify(
             res.data
           )
-        );
-
-        localStorage.setItem(
-          "isDevLoggedIn",
-          "true"
         );
 
         alert(
@@ -290,7 +293,8 @@ const DeveloperAuth = () => {
               background:
                 "#00cec9",
 
-              color: "#fff",
+              color:
+                "#fff",
 
               cursor:
                 "pointer",
@@ -301,9 +305,11 @@ const DeveloperAuth = () => {
                   : 1,
             }}
           >
+
             {loading
               ? "Processing..."
               : "🔑 Login"}
+
           </button>
 
         </form>

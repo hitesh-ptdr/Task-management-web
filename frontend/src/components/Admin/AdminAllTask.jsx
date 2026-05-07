@@ -95,7 +95,7 @@ const AdminAllTask = () => {
   const fetchTasks = async () => {
     try {
       const token =
-        localStorage.getItem("token");
+        localStorage.getItem("admintoken");
 
       const res =
         await axios.get("/tasks", {
@@ -124,7 +124,7 @@ const AdminAllTask = () => {
 
     try {
       const token =
-        localStorage.getItem("token");
+        localStorage.getItem("adminToken");
 
       await axios.delete(
         `/tasks/${id}`,

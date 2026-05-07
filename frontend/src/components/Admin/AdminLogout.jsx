@@ -1,43 +1,104 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import "../Styles/AdminLogout.css";
-import { CheckCircle } from "lucide-react";
+
+import {
+  CheckCircle,
+} from "lucide-react";
 
 const AdminLogout = () => {
-  const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(3);
 
-  // 1) Clear session once
+  const navigate =
+    useNavigate();
+
+  const [countdown, setCountdown] =
+    useState(3);
+
+  /* CLEAR SESSION */
   useEffect(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("isAdminLoggedIn");
+
+    localStorage.removeItem(
+      "adminToken"
+    );
+
+    localStorage.removeItem(
+      "adminData"
+    );
+
   }, []);
 
-  // 2) Countdown timer
+  /* TIMER */
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => prev - 1);
-    }, 1000);
 
-    return () => clearInterval(timer);
+    const timer =
+      setInterval(() => {
+
+        setCountdown(
+          (prev) => prev - 1
+        );
+
+      }, 1000);
+
+    return () =>
+      clearInterval(timer);
+
   }, []);
 
-  // 3) Redirect when countdown खत्म
+  /* REDIRECT */
   useEffect(() => {
+
     if (countdown <= 0) {
-      navigate("/admin/login", { replace: true });
+
+      navigate(
+        "/admin/login",
+        {
+          replace: true,
+        }
+      );
     }
-  }, [countdown, navigate]);
+
+  }, [
+    countdown,
+    navigate,
+  ]);
 
   return (
     <div className="logout-container">
+
       <div className="logout-box">
-        <CheckCircle className="logout-icon" size={60} />
-        <h1>Logged Out Successfully</h1>
+
+        <CheckCircle
+          className="logout-icon"
+          size={60}
+        />
+
+        <h1>
+          Logged Out Successfully
+        </h1>
+
         <p>
-          You will be redirected in <span>{countdown}</span> seconds...
+
+          You will be redirected in
+
+          {" "}
+
+          <span>
+            {countdown}
+          </span>
+
+          {" "}seconds...
+
         </p>
+
       </div>
+
     </div>
   );
 };

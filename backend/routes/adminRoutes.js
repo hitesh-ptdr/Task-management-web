@@ -52,11 +52,44 @@ const verifyAdmin = async (req, res, next) => {
 /* ===========================
    MULTER
 =========================== */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)),
-});
+const storage =
+  multer.diskStorage({
+
+    destination:
+      function (
+        req,
+        file,
+        cb
+      ) {
+
+        cb(
+          null,
+
+          path.join(
+            __dirname,
+            "../uploads"
+          )
+        );
+      },
+
+    filename:
+      function (
+        req,
+        file,
+        cb
+      ) {
+
+        cb(
+
+          null,
+
+          Date.now() +
+            path.extname(
+              file.originalname
+            )
+        );
+      },
+  });
 
 const upload = multer({ storage });
 
@@ -177,15 +210,48 @@ router.put("/update-profile", verifyAdmin, async (req, res) => {
 =========================== */
 router.post(
   "/upload-photo",
+
   verifyAdmin,
+
   upload.single("image"),
+
   async (req, res) => {
-    const admin = req.admin;
 
-    admin.profilePic = req.file.filename;
-    await admin.save();
+    try {
 
-    res.json({ message: "Photo Uploaded" });
+      // FILE CHECK
+      if (!req.file) {
+
+        return res.status(400).json({
+          message: "No file uploaded",
+        });
+      }
+
+      const admin =
+        req.admin;
+
+      admin.profilePic =
+        req.file.filename;
+
+      await admin.save();
+
+      res.json({
+        message:
+          "Photo Uploaded Successfully",
+      });
+
+    } catch (error) {
+
+      console.log(
+        "ADMIN PHOTO ERROR:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Upload failed",
+      });
+    }
   }
 );
 

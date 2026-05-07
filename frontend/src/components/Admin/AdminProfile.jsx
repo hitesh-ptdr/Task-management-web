@@ -7,7 +7,7 @@ const AdminProfile = () => {
   const [edit, setEdit] = useState(false);
   const [file, setFile] = useState(null);
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("adminToken");
 
   const fetchProfile = async () => {
     try {

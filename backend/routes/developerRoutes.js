@@ -14,14 +14,45 @@ const { verifyAdmin, verifyDeveloper } = require("../middleware/authMiddleware")
 
 const router = express.Router();
 
-/* ===========================
-   MULTER
-=========================== */
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)),
-});
+const storage =
+  multer.diskStorage({
+
+    destination:
+      function (
+        req,
+        file,
+        cb
+      ) {
+
+        cb(
+          null,
+
+          path.join(
+            __dirname,
+            "../uploads"
+          )
+        );
+      },
+
+    filename:
+      function (
+        req,
+        file,
+        cb
+      ) {
+
+        cb(
+
+          null,
+
+          Date.now() +
+            path.extname(
+              file.originalname
+            )
+        );
+      },
+  });
+
 const upload = multer({ storage });
 
 /* ===========================
@@ -160,15 +191,48 @@ router.put("/update-profile", verifyDeveloper, async (req, res) => {
 =========================== */
 router.post(
   "/upload-photo",
-  verifyDeveloper,
-  upload.single("image"),
-  async (req, res) => {
-    const dev = req.developer;
-    dev.profilePic = req.file.filename;
-    await dev.save();
 
-    res.json({ message: "Uploaded" });
+  verifyDeveloper,
+
+  upload.single("image"),
+
+  async (req, res) => {
+
+    try {
+
+      // FILE CHECK
+      if (!req.file) {
+
+        return res.status(400).json({
+          message: "No file uploaded",
+        });
+      }
+
+      const dev =
+        req.developer;
+
+      dev.profilePic =
+        req.file.filename;
+
+      await dev.save();
+
+      res.json({
+        message:
+          "Photo Uploaded Successfully",
+      });
+
+    } catch (error) {
+
+      console.log(
+        "DEV PHOTO ERROR:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Upload failed",
+      });
+    }
   }
 );
-
 module.exports = router;

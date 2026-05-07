@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cron = require("node-cron");
+const fs = require("fs");
+
 require("dotenv").config();
 
 const app = express();
@@ -14,30 +16,64 @@ const Developer = require("./models/Developer");
 const sendMail = require("./utils/sendMail");
 
 /* Routes */
-const developerRoutes = require("./routes/developerRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const taskRoutes = require("./routes/taskRoutes");
+const developerRoutes =
+  require("./routes/developerRoutes");
+
+const adminRoutes =
+  require("./routes/adminRoutes");
+
+const taskRoutes =
+  require("./routes/taskRoutes");
+
+/* =====================================
+   CREATE UPLOADS FOLDER
+===================================== */
+if (
+  !fs.existsSync("uploads")
+) {
+
+  fs.mkdirSync(
+    "uploads"
+  );
+
+  console.log(
+    "✅ uploads folder created"
+  );
+}
 
 /* =====================================
    Middleware
 ===================================== */
 app.use(cors());
-app.use(express.json());
 
-/* Upload Images Access */
+app.use(
+  express.json()
+);
+
+/* =====================================
+   Upload Images Access
+===================================== */
 app.use(
   "/uploads",
-  express.static("uploads")
+  express.static(
+    "uploads"
+  )
 );
 
 /* =====================================
    MongoDB
 ===================================== */
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() =>
-    console.log("✅ MongoDB Connected")
+  .connect(
+    process.env.MONGO_URI
   )
+
+  .then(() =>
+    console.log(
+      "✅ MongoDB Connected"
+    )
+  )
+
   .catch((err) =>
     console.error(
       "❌ MongoDB Error:",
@@ -65,12 +101,14 @@ app.use(
 
 /* =====================================
    CRON JOB
-   Every 5 Minutes
 ===================================== */
 cron.schedule(
   "*/5 * * * *",
+
   async () => {
+
     try {
+
       console.log(
         "⏰ Deadline checker running..."
       );
@@ -78,11 +116,12 @@ cron.schedule(
       const now =
         new Date();
 
-      /* Only valid tasks */
       const tasks =
         await Task.find({
           createdBy: {
-            $exists: true,
+            $exists:
+              true,
+
             $ne: null,
           },
         }).populate(
@@ -91,6 +130,7 @@ cron.schedule(
         );
 
       for (let task of tasks) {
+
         const deadline =
           new Date(
             task.deadline
@@ -105,60 +145,88 @@ cron.schedule(
           );
 
         /* ====================
-           1 Hour Reminder
+           1 HOUR REMINDER
         ==================== */
+
         if (
+
           minutesLeft <= 60 &&
+
           minutesLeft > 55 &&
+
           task.status !==
             "Completed" &&
+
           task.status !==
             "Late Completed"
+
         ) {
-          await sendMail(
-            task.developer
-              .email,
 
-            "Task Deadline Reminder",
+          try {
 
-            `
+            await sendMail(
+
+              task.developer
+                .email,
+
+              "Task Deadline Reminder",
+
+              `
 Hello ${task.developer.name},
 
 Your task deadline is near.
 
-Task: ${task.title}
+Task:
+${task.title}
 
-Deadline: ${deadline.toLocaleString()}
+Deadline:
+${deadline.toLocaleString()}
 
 Please complete it soon.
 
 Task Manager
 `
-          );
+            );
 
-          console.log(
-            "📩 Reminder sent:",
-            task.title
-          );
+            console.log(
+              "📩 Reminder sent:",
+              task.title
+            );
+
+          } catch (mailError) {
+
+            console.log(
+              "MAIL ERROR:",
+              mailError.message
+            );
+          }
         }
 
         /* ====================
-           Auto Overdue
+           AUTO OVERDUE
         ==================== */
+
         if (
+
           now > deadline &&
+
           task.status !==
             "Completed" &&
+
           task.status !==
             "Late Completed" &&
+
           task.status !==
             "Overdue"
+
         ) {
+
           task.status =
             "Overdue";
 
           await task.save({
-            validateBeforeSave: false,
+            validateBeforeSave:
+              false,
           });
 
           console.log(
@@ -167,7 +235,9 @@ Task Manager
           );
         }
       }
+
     } catch (error) {
+
       console.log(
         "Cron Error:",
         error.message
@@ -177,17 +247,18 @@ Task Manager
 );
 
 /* =====================================
-   Server Start
+   SERVER START
 ===================================== */
+
 const PORT =
   process.env.PORT ||
   4000;
 
-app.listen(PORT, () =>
-  console.log(
-    `🚀 Server running on port ${PORT}`
-  )
-);   
+app.listen(
+  PORT,
 
-const settingsRoutes = require("./routes/settingsRoutes");
-
+  () =>
+    console.log(
+      `🚀 Server running on port ${PORT}`
+    )
+);
