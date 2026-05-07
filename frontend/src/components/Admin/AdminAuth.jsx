@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
 } from "react";
 
 import {
@@ -17,7 +18,7 @@ const AdminAuth = ({
     useNavigate();
 
   /* ===========================
-     DIRECT DASHBOARD REDIRECT
+     TOKEN
   =========================== */
 
   const token =
@@ -25,20 +26,30 @@ const AdminAuth = ({
       "adminToken"
     );
 
-  if (
-    token &&
-    mode === "login"
-  ) {
+  /* ===========================
+     REDIRECT
+  =========================== */
 
-    navigate(
-      "/admin/dashboard",
-      {
-        replace: true,
-      }
-    );
+  useEffect(() => {
 
-    return null;
-  }
+    if (
+      token &&
+      mode === "login"
+    ) {
+
+      navigate(
+        "/admin/dashboard",
+        {
+          replace: true,
+        }
+      );
+    }
+
+  }, [
+    token,
+    mode,
+    navigate,
+  ]);
 
   /* ===========================
      STATES
