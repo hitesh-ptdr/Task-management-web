@@ -23,19 +23,13 @@ const AdminAllDevelopers = () => {
       try {
 
         // ✅ UPDATED TOKEN
-        const token =
-          localStorage.getItem(
-            "adminToken"
-          );
+     
 
         const res =
           await axios.get(
             "/developers",
             {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
+           
             }
           );
 
