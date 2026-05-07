@@ -44,7 +44,7 @@ instance.interceptors.request.use(
         url.startsWith(route)
       );
 
-    // 🔥 PUBLIC ROUTES => NO TOKEN
+    // 🔥 PUBLIC ROUTES
     if (isPublicRoute) {
       return config;
     }
@@ -53,14 +53,16 @@ instance.interceptors.request.use(
        DEVELOPER ROUTES
     =================================== */
 
-const developerRoutes = [
-  "/developers/verify",
-  "/developers/my",
-  "/developers/profile",
-  "/developers/update-profile",
-  "/developers/upload-photo",
-  "/developers/tasks",
-];
+    const developerRoutes = [
+      "/developers/verify",
+      "/developers/my",
+      "/developers/profile",
+      "/developers/update-profile",
+      "/developers/upload-photo",
+      "/developers/tasks",
+      "/tasks/update-status",
+      "/tasks",
+    ];
 
     const isDeveloperRoute =
       developerRoutes.some((route) =>
@@ -71,17 +73,23 @@ const developerRoutes = [
        SET TOKEN
     =================================== */
 
-    // ✅ Developer Token
+    // ✅ DEVELOPER TOKEN
     if (
-      isDeveloperRoute &&
-      devToken
+      devToken &&
+      (
+        isDeveloperRoute ||
+        config.method === "patch" ||
+        config.method === "put"
+      )
     ) {
+
       config.headers.Authorization =
         `Bearer ${devToken}`;
     }
 
-    // ✅ Admin Token
+    // ✅ ADMIN TOKEN
     else if (adminToken) {
+
       config.headers.Authorization =
         `Bearer ${adminToken}`;
     }
