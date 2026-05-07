@@ -18,7 +18,7 @@ const AdminAddTask = () => {
   useEffect(() => {
     const fetchDevelopers = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('adminToken');
         const res = await axios.get('/developers', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -37,7 +37,7 @@ const AdminAddTask = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('adminToken'); 
       await axios.post('/tasks', {
         title: task.title,
         description: task.description,
