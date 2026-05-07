@@ -55,9 +55,9 @@ const DeveloperSidebar = () => {
         {/* Profile */}
         <div className="sidebar-top">
           {developer.profilePic ? (
-            <img
-              src={`http://localhost:4000/uploads/${developer.profilePic}`}
-              alt="profile"
+        <img
+  src={`https://task-management-web-umd5.onrender.com/uploads/${developer.profilePic}`}
+  alt="profile"
               className="sidebar-img"
             />
           ) : (

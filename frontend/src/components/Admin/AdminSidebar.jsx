@@ -131,9 +131,8 @@ const AdminSidebar = () => {
 
           {admin.profilePic ? (
 
-            <img
-              src={`http://localhost:4000/uploads/${admin.profilePic}`}
-              alt="admin"
+            <img src={`https://task-management-web-umd5.onrender.com/uploads/${admin.profilePic}`}
+  alt="profile"
               className="sidebar-img"
             />
 
