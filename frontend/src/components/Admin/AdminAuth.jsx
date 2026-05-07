@@ -1,6 +1,5 @@
 import React, {
   useState,
-  useEffect,
 } from "react";
 
 import {
@@ -16,6 +15,34 @@ const AdminAuth = ({
   const navigate =
     useNavigate();
 
+  /* ===========================
+     DIRECT DASHBOARD REDIRECT
+  =========================== */
+
+  const token =
+    localStorage.getItem(
+      "adminToken"
+    );
+
+  if (
+    token &&
+    mode === "login"
+  ) {
+
+    navigate(
+      "/admin/dashboard",
+      {
+        replace: true,
+      }
+    );
+
+    return null;
+  }
+
+  /* ===========================
+     STATES
+  =========================== */
+
   const [form, setForm] =
     useState({
       name: "",
@@ -27,57 +54,10 @@ const AdminAuth = ({
   const [loading, setLoading] =
     useState(false);
 
-  const [checkingAuth,
-    setCheckingAuth] =
-    useState(true);
-
-  /* ===========================
-     AUTO LOGIN CHECK
-  =========================== */
-  useEffect(() => {
-
-    const token =
-      localStorage.getItem(
-        "adminToken"
-      );
-
-    // NO TOKEN
-    if (!token) {
-      setCheckingAuth(false);
-      return;
-    }
-
-    // VERIFY TOKEN
-    axios
-      .get(
-        "/admin/verify-admin"
-      )
-
-      .then(() => {
-
-        navigate(
-          "/admin/dashboard",
-          {
-            replace: true,
-          }
-        );
-      })
-
-.catch((err) => {
-
-  console.log(
-    "Verify Error:",
-    err.message
-  );
-
-  setCheckingAuth(false);
-});
-
-  }, []);
-
   /* ===========================
      INPUT
   =========================== */
+
   const handleChange = (e) =>
     setForm({
       ...form,
@@ -88,6 +68,7 @@ const AdminAuth = ({
   /* ===========================
      SUBMIT
   =========================== */
+
   const handleSubmit =
     async (e) => {
 
@@ -177,25 +158,6 @@ const AdminAuth = ({
         setLoading(false);
       }
     };
-
-  // 🔥 STOP LOGIN FLASH
- if (checkingAuth) {
-
-  return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        fontSize: "18px",
-        fontWeight: "600",
-      }}
-    >
-      Loading...
-    </div>
-  );
-}
 
   return (
     <div style={styles.page}>
@@ -354,7 +316,8 @@ const styles = {
     background:
       "#0d6efd",
     color: "#fff",
-    cursor: "pointer",
+    cursor:
+      "pointer",
     fontWeight:
       "600",
   },
