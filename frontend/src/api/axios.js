@@ -10,9 +10,6 @@ const instance = axios.create({
   },
 });
 
-/* ===================================
-   REQUEST INTERCEPTOR
-=================================== */
 instance.interceptors.request.use(
   (config) => {
 
@@ -29,9 +26,9 @@ instance.interceptors.request.use(
     const url =
       config.url || "";
 
-    /* ===================================
+    /* ===========================
        PUBLIC ROUTES
-    =================================== */
+    =========================== */
 
     const publicRoutes = [
       "/admin/login",
@@ -44,14 +41,13 @@ instance.interceptors.request.use(
         url.startsWith(route)
       );
 
-    // 🔥 PUBLIC ROUTES
     if (isPublicRoute) {
       return config;
     }
 
-    /* ===================================
+    /* ===========================
        DEVELOPER ROUTES
-    =================================== */
+    =========================== */
 
     const developerRoutes = [
       "/developers/verify",
@@ -60,8 +56,6 @@ instance.interceptors.request.use(
       "/developers/update-profile",
       "/developers/upload-photo",
       "/developers/tasks",
-      "/tasks/update-status",
-      "/tasks",
     ];
 
     const isDeveloperRoute =
@@ -69,18 +63,23 @@ instance.interceptors.request.use(
         url.startsWith(route)
       );
 
-    /* ===================================
-       SET TOKEN
-    =================================== */
+    /* ===========================
+       TASK UPDATE ROUTES
+    =========================== */
+const isDeveloperTaskUpdate =
+  url.startsWith("/tasks/");
 
-    // ✅ DEVELOPER TOKEN
+    /* ===========================
+       SET TOKEN
+    =========================== */
+
+    // ✅ DEV TOKEN
     if (
-      devToken &&
       (
         isDeveloperRoute ||
-        config.method === "patch" ||
-        config.method === "put"
-      )
+        isDeveloperTaskUpdate
+      ) &&
+      devToken
     ) {
 
       config.headers.Authorization =
@@ -88,7 +87,9 @@ instance.interceptors.request.use(
     }
 
     // ✅ ADMIN TOKEN
-    else if (adminToken) {
+    else if (
+      adminToken
+    ) {
 
       config.headers.Authorization =
         `Bearer ${adminToken}`;
