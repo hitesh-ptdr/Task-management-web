@@ -63,18 +63,15 @@ const AdminAuth = ({
         );
       })
 
-      .catch(() => {
+.catch((err) => {
 
-        localStorage.removeItem(
-          "adminToken"
-        );
+  console.log(
+    "Verify Error:",
+    err.message
+  );
 
-        localStorage.removeItem(
-          "adminData"
-        );
-
-        setCheckingAuth(false);
-      });
+  setCheckingAuth(false);
+});
 
   }, []);
 
@@ -182,9 +179,23 @@ const AdminAuth = ({
     };
 
   // 🔥 STOP LOGIN FLASH
-  if (checkingAuth) {
-    return null;
-  }
+ if (checkingAuth) {
+
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: "18px",
+        fontWeight: "600",
+      }}
+    >
+      Loading...
+    </div>
+  );
+}
 
   return (
     <div style={styles.page}>
