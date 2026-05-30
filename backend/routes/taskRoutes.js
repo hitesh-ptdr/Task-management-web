@@ -4,12 +4,12 @@ const router = express.Router();
 const Task = require("../models/Task");
 const Developer = require("../models/Developer");
 
-const sendMail = require("../utils/sendMail");
+const sendMail = require("../utils/sendMail");   
 
 const {
   verifyAdmin,
   verifyDeveloper,
-} = require("../middleware/authMiddleware");
+} = require("../middleware/authMiddleware");  
 
 /* ======================
    CREATE TASK
@@ -101,31 +101,20 @@ router.post(
       /* ======================
          SEND EMAIL
       ====================== */
+await sendMail(
+developer.email,
 
-      try {
+"New Task Assigned",
 
-        await sendMail(
-          developer.email,
-
-          "New Task Assigned",
-
-          `
+`
 Task: ${title}
 
 Deadline:
 ${new Date(
-  deadline
+deadline
 ).toLocaleString()}
 `
-        );
-
-      } catch (mailError) {
-
-        console.log(
-          "MAIL ERROR:",
-          mailError.message
-        );
-      }
+);
 
       /* SUCCESS */
       res.json({
