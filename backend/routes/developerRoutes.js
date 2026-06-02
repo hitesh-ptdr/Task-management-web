@@ -174,7 +174,8 @@ router.post(
   upload.single("image"),
 
   async (req, res) => {
-
+console.log("FILE =>", req.file);
+console.log("BODY =>", req.body);
     try {
 
       // FILE CHECK
@@ -198,17 +199,13 @@ router.post(
       });
 
     } catch (error) {
+  console.log("DEV PHOTO ERROR:", error);
 
-      console.log(
-        "DEV PHOTO ERROR:",
-        error
-      );
-
-      res.status(500).json({
-        message:
-          "Upload failed",
-      });
-    }
+  res.status(500).json({
+    message: error.message,
+    stack: error.stack,
+  });
+}
   }
 );
 module.exports = router;

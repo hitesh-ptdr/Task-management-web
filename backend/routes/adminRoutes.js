@@ -193,12 +193,15 @@ router.post(
 
   upload.single("image"),
 
-  async (req, res) => {
+  async (req, res) => {  
+
+    console.log("FILE =>", req.file);
+console.log("BODY =>", req.body);
 
     try {
 
       // FILE CHECK
-      if (!req.file) {
+      if (!req.file) { 
 
         return res.status(400).json({
           message: "No file uploaded",
@@ -217,18 +220,14 @@ router.post(
           "Photo Uploaded Successfully",
       });
 
-    } catch (error) {
+    }catch (error) {
+  console.log("PHOTO ERROR:", error);
 
-      console.log(
-        "ADMIN PHOTO ERROR:",
-        error
-      );
-
-      res.status(500).json({
-        message:
-          "Upload failed",
-      });
-    }
+  res.status(500).json({
+    message: error.message,
+    stack: error.stack,
+  });
+}
   }
 );
 
