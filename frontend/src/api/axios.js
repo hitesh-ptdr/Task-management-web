@@ -17,7 +17,7 @@ instance.interceptors.request.use(
     /* =====================================
        1. PUBLIC ROUTES (No Token Needed)
        ===================================== */
-    const publicRoutes = ["/admin/login", "/admin/register", "/developers/login"];
+    const publicRoutes = ["/admin/login", "/admin/register", "/developers/login", "/stats"];
     if (publicRoutes.some((route) => url.startsWith(route))) {
       return config;
     }

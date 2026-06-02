@@ -27,10 +27,12 @@ const Home = () => {
 });
 
 useEffect(() => {
-  axios
-    .get("/stats")
-    .then((res) => {
-      setStats(res.data);
+  fetch(
+    "https://task-manager-app-backend-a87f.onrender.com/api/stats"
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      setStats(data);
     })
     .catch((err) => {
       console.log(err);
