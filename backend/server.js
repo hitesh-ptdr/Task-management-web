@@ -27,10 +27,7 @@ const adminRoutes =
 const taskRoutes =
   require("./routes/taskRoutes");
 
-  app.use(
-  "/api/stats",
-  statsRoutes
-);
+
 
 /* =====================================
    CREATE UPLOADS FOLDER
@@ -51,25 +48,28 @@ if (
 /* =====================================
    Middleware
 ===================================== */
+/* =====================================
+   Middleware
+===================================== */
+
 app.use(
   cors({
-    origin: true,
-    credentials: true,
+    origin: "*",
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "OPTIONS",
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+    ],
   })
 );
-app.use(
-  express.json()
-);
 
-/* =====================================
-   Upload Images Access
-===================================== */
-app.use(
-  "/uploads",
-  express.static(
-    "uploads"
-  )
-);
+app.use(express.json());
 
 /* =====================================
    MongoDB
@@ -94,7 +94,10 @@ mongoose
 
 /* =====================================
    API Routes
-===================================== */
+===================================== */ 
+
+app.use("/api/stats", statsRoutes);
+
 app.use(
   "/api/developers",
   developerRoutes
