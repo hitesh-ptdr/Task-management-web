@@ -168,17 +168,34 @@ router.put("/update-profile", verifyDeveloper, async (req, res) => {
 =========================== */
 router.post(
   "/upload-photo",
-
   verifyDeveloper,
 
-  upload.single("image"),
+  (req, res, next) => {
+
+    upload.single("image")(req, res, (err) => {
+
+      if (err) {
+
+        console.log(
+          "MULTER CLOUDINARY ERROR:",
+          err
+        );
+
+        return res.status(500).json({
+          message: err.message,
+        });
+      }
+
+      next();
+    });
+  },
 
   async (req, res) => {
-console.log("FILE =>", req.file);
-console.log("BODY =>", req.body);
+
     try {
 
-      // FILE CHECK
+      console.log("FILE =>", req.file);
+
       if (!req.file) {
 
         return res.status(400).json({
@@ -186,26 +203,30 @@ console.log("BODY =>", req.body);
         });
       }
 
-      const dev =
-        req.developer;
+      const dev = req.developer;
 
-    dev.profilePic = req.file.path;
+      dev.profilePic = req.file.path;
 
       await dev.save();
 
       res.json({
         message:
           "Photo Uploaded Successfully",
+        image: req.file.path,
       });
 
     } catch (error) {
-  console.log("DEV PHOTO ERROR:", error);
 
-  res.status(500).json({
-    message: error.message,
-    stack: error.stack,
-  });
-}
+      console.log(
+        "DEV PHOTO ERROR:",
+        error
+      );
+
+      res.status(500).json({
+        message: error.message,
+      });
+    }
   }
 );
+
 module.exports = router;
