@@ -1,7 +1,9 @@
 import axios from "axios";
 
+import axios from "axios";
+
 const instance = axios.create({
-  baseURL: "https://task-management-web-umd5.onrender.com/api",
+  baseURL: "https://task-manager-app-backend-a87f.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
