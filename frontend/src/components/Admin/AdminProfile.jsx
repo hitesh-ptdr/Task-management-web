@@ -109,11 +109,11 @@ const AdminProfile = () => {
         <div className="admin-profile-left">
 
           <img
-            src={
-              profile.profilePic
-                ? `https://task-management-web-umd5.onrender.com/uploads/${profile.profilePic}`
-                : `https://ui-avatars.com/api/?name=${profile.name || "Admin"}`
-            }
+ src={
+  profile.profilePic
+    ? profile.profilePic
+    : `https://ui-avatars.com/api/?name=${profile.name || "Admin"}`
+}
             alt="Admin"
             className="admin-avatar"
           />

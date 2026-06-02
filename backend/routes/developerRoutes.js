@@ -5,6 +5,10 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
+const cloudinary = require("../config/cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+
 
 const Developer = require("../models/Developer");
 const Task = require("../models/Task");
@@ -14,47 +18,20 @@ const { verifyAdmin, verifyDeveloper } = require("../middleware/authMiddleware")
 
 const router = express.Router();
 
-const storage =
-  multer.diskStorage({
-
-    destination:
-      function (
-        req,
-        file,
-        cb
-      ) {
-
-        cb(
-          null,
-
-          path.join(
-            __dirname,
-            "../uploads"
-          )
-        );
-      },
-
-    filename:
-      function (
-        req,
-        file,
-        cb
-      ) {
-
-        cb(
-
-          null,
-
-          Date.now() +
-            path.extname(
-              file.originalname
-            )
-        );
-      },
-  });
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "task-manager/developer",
+    allowed_formats: [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp",
+    ],
+  },
+});
 
 const upload = multer({ storage });
-
 /* ===========================
    LOGIN
 =========================== */
@@ -211,8 +188,7 @@ router.post(
       const dev =
         req.developer;
 
-      dev.profilePic =
-        req.file.filename;
+    dev.profilePic = req.file.path;
 
       await dev.save();
 

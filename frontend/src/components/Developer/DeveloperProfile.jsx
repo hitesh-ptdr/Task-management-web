@@ -117,11 +117,11 @@ window.dispatchEvent(
         <div className="profile-left">
 
           <img
-            src={
-              profile.profilePic
-                ? `https://task-management-web-umd5.onrender.com/uploads/${profile.profilePic}`
-                : `https://ui-avatars.com/api/?name=${profile.name || "User"}`
-            }
+      src={
+  profile.profilePic
+    ? profile.profilePic
+    : `https://ui-avatars.com/api/?name=${profile.name || "User"}`
+}
             alt="Profile"
             className="avatar"
           />

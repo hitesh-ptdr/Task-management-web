@@ -154,23 +154,19 @@
 
 /* Responsive */
 
-@media(max-width:992px){
-
-  .task-table{
-    display:block;
-    overflow-x:auto;
-    white-space:nowrap;
-  }
-}
-
+/* Responsive */
 @media(max-width:768px){
 
   .dev-wrap{
-    margin-top:10px;
+    margin-top:0;
+    padding:0;
   }
 
   .welcome-card{
+    background:#fff;
+    border-radius:22px;
     padding:18px;
+    padding-top:75px; /* menu icon ke liye space */
     flex-direction:column;
     align-items:flex-start;
   }
@@ -178,6 +174,11 @@
   .welcome-card h1{
     font-size:24px;
     line-height:1.4;
+    margin:0;
+  }
+
+  .welcome-card p{
+    margin-top:8px;
   }
 
   .stats-row{
@@ -198,9 +199,22 @@
   }
 }
 
-@media(max-width:480px){
+@media(max-width:768px){
 
-  .stats-row{
-    grid-template-columns:1fr;
+  .table-box{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
   }
+
+  .task-table{
+    min-width:650px;
+    width:100%;
+  }
+
+  .task-table th,
+  .task-table td{
+    padding:10px;
+    font-size:14px;
+  }
+
 }

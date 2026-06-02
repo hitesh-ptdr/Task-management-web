@@ -238,3 +238,22 @@
     grid-template-columns:1fr;
   }
 }
+
+@media(max-width:768px){
+
+  .admin-top,
+  .modern-top{
+    margin-top:0 !important;
+    padding-top:75px !important; /* menu icon ke liye */
+  }
+
+  .admin-top h1{
+    font-size:24px;
+    line-height:1.4;
+  }
+
+  .top-mini-info{
+    width:100%;
+    margin-top:15px;
+  }
+}

@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
+const cloudinary = require("../config/cloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 const Company = require("../models/Company");
 const Admin = require("../models/Admin");
@@ -52,46 +54,22 @@ const verifyAdmin = async (req, res, next) => {
 /* ===========================
    MULTER
 =========================== */
-const storage =
-  multer.diskStorage({
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "task-manager",
+    allowed_formats: [
+      "jpg",
+      "jpeg",
+      "png",
+      "webp",
+    ],
+  },
+});
 
-    destination:
-      function (
-        req,
-        file,
-        cb
-      ) {
-
-        cb(
-          null,
-
-          path.join(
-            __dirname,
-            "../uploads"
-          )
-        );
-      },
-
-    filename:
-      function (
-        req,
-        file,
-        cb
-      ) {
-
-        cb(
-
-          null,
-
-          Date.now() +
-            path.extname(
-              file.originalname
-            )
-        );
-      },
-  });
-
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+});
 
 /* ===========================
    REGISTER
@@ -230,8 +208,7 @@ router.post(
       const admin =
         req.admin;
 
-      admin.profilePic =
-        req.file.filename;
+      admin.profilePic = req.file.path;
 
       await admin.save();
 
