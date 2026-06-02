@@ -53,10 +53,7 @@ if (
 ===================================== */
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://your-vercel-domain.vercel.app"
-    ],
+    origin: true,
     credentials: true,
   })
 );
