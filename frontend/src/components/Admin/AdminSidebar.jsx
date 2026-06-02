@@ -131,10 +131,11 @@ const AdminSidebar = () => {
 
           {admin.profilePic ? (
 
-            <img src={`https://task-management-web-umd5.onrender.com/uploads/${admin.profilePic}`}
+   <img
+  src={admin.profilePic}
   alt="profile"
-              className="sidebar-img"
-            />
+  className="sidebar-img"
+/>
 
           ) : (
 

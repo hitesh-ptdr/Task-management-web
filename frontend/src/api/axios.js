@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 const instance = axios.create({
-  baseURL: "https://task-manager-app-backend-a87f.onrender.com/api",
+baseURL: "https://task-manager-app-backend-a87f.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -57,57 +57,3 @@ instance.interceptors.request.use(
 
 export default instance;
 
-// import axios from "axios";
-
-// const instance = axios.create({
-//   baseURL: "https://task-management-web-umd5.onrender.com/api",
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-// });
-
-// instance.interceptors.request.use(
-//   (config) => {
-//     const adminToken = localStorage.getItem("adminToken");
-//     const devToken = localStorage.getItem("devToken");
-//     const url = config.url || "";
-
-//     /* =====================================
-//        1. PUBLIC ROUTES (No Token Needed)
-//        ===================================== */
-//     const publicRoutes = ["/admin/login", "/admin/register", "/developers/login"];
-//     if (publicRoutes.some((route) => url.startsWith(route))) {
-//       return config;
-//     }
-
-//     /* =====================================
-//        2. EXCEPTION FOR ADMIN ACTIONS
-//        ===================================== */
-//     // /developers/add ko hamesha adminToken chahiye, chahe URL kuch bhi ho
-//     if (url.startsWith("/developers/add")) {
-//       if (adminToken) {
-//         config.headers.Authorization = `Bearer ${adminToken}`;
-//       }
-//       return config;
-//     }
-
-//     /* =====================================
-//        3. SMART ROLE SELECTION (Based on Browser URL)
-//        ===================================== */
-//     // Hum check karenge ki browser ke screen par abhi '/developer' panel khula hai ya nahi
-//     const isDeveloperPanelActive = window.location.pathname.includes("/developer");
-
-//     if (isDeveloperPanelActive && devToken) {
-//       // Agar user developer wale kisi bhi dashboard ya route par hai, to hamesha devToken bhejo
-//       config.headers.Authorization = `Bearer ${devToken}`;
-//     } else if (adminToken) {
-//       // Baaki sabhi cases (Admin dashboard, tasks creation, etc.) me adminToken bhejo
-//       config.headers.Authorization = `Bearer ${adminToken}`;
-//     }
-
-//     return config;
-//   },
-//   (error) => Promise.reject(error)
-// );
-
-// export default instance;
