@@ -3,6 +3,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const cron = require("node-cron");
 const fs = require("fs");
+const statsRoutes =
+  require("./routes/statsRoutes");
 
 require("dotenv").config();
 
@@ -24,6 +26,11 @@ const adminRoutes =
 
 const taskRoutes =
   require("./routes/taskRoutes");
+
+  app.use(
+  "/api/stats",
+  statsRoutes
+);
 
 /* =====================================
    CREATE UPLOADS FOLDER

@@ -1,6 +1,6 @@
 // Home.jsx
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaInstagram,
@@ -15,8 +15,27 @@ import {
 } from "react-icons/fa";
 import "./Home.css";
 import mobile1 from "../../assets/mobile1.png";
+import { useEffect, useState } from "react";
+import axios from "../../api/axios";
 
-const Home = () => {
+const Home = () => { 
+
+  const [stats, setStats] = useState({
+  totalUsers: 0,
+  totalTasks: 0,
+  completedTasks: 0,
+});
+
+useEffect(() => {
+  axios
+    .get("/stats")
+    .then((res) => {
+      setStats(res.data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}, []);
   return (
     <div className="home">
 
@@ -57,22 +76,22 @@ const Home = () => {
             <span><FaCheckCircle /> Team Friendly</span>
           </div>
 
-          <div className="stats">
-            <div>
-              <h3>15K+</h3>
-              <p>Users</p>
-            </div>
+ <div className="stats">
+  <div>
+    <h3>{stats.totalUsers}+</h3>
+    <p>Developers</p>
+  </div>
 
-            <div>
-              <h3>98%</h3>
-              <p>Success</p>
-            </div>
+  <div>
+    <h3>{stats.completedTasks}</h3>
+    <p>Completed Tasks</p>
+  </div>
 
-            <div>
-              <h3>24/7</h3>
-              <p>Support</p>
-            </div>
-          </div>
+  <div>
+    <h3>{stats.totalTasks}</h3>
+    <p>Total Tasks</p>
+  </div>
+</div>
 
         </div>
 
