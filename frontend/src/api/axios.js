@@ -26,12 +26,12 @@ instance.interceptors.request.use(
        2. EXCEPTION FOR ADMIN ACTIONS
        ===================================== */
     // Even though this starts with /developers, it's an admin action
-    if (url.startsWith("/developers/add")) {
-      if (adminToken) {
-        config.headers.Authorization = `Bearer ${adminToken}`;
-      }
-      return config;
-    }
+ if (url.startsWith("/developers")) {
+  if (adminToken) {
+    config.headers.Authorization = `Bearer ${adminToken}`;
+  }
+  return config;
+}
 
     /* =====================================
        3. RELIABLE ROLE SELECTION (Based on API URL)
