@@ -59,6 +59,7 @@ app.use(
       "GET",
       "POST",
       "PUT",
+      "PATCH",
       "DELETE",
       "OPTIONS",
     ],
