@@ -70,6 +70,8 @@ app.use(
   })
 );
 
+app.options("*", cors()); // <-- ye add karo
+
 app.use(express.json());
 
 /* =====================================
