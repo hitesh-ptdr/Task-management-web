@@ -68,6 +68,80 @@
 // export default instance;
 
 
+// import axios from "axios";
+
+// const instance = axios.create({
+//   baseURL: "https://task-manager-app-backend-a87f.onrender.com/api",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+// });
+
+// instance.interceptors.request.use(
+//   (config) => {
+//     const adminToken = localStorage.getItem("adminToken");
+//     const devToken = localStorage.getItem("devToken");
+//     const url = config.url || "";
+
+//     /* PUBLIC ROUTES */
+//     const publicRoutes = [
+//       "/admin/login",
+//       "/admin/register",
+//       "/developers/login",
+//       "/stats",
+//     ];
+
+//     if (
+//       publicRoutes.some((route) =>
+//         url.startsWith(route)
+//       )
+//     ) {
+//       return config;
+//     }
+
+//     /* ADMIN ROUTES */
+//     if (
+//       url === "/developers" ||
+//       url === "/developers/add" ||
+//       url.startsWith("/admin")
+//     ) {
+//       if (adminToken) {
+//         config.headers.Authorization =
+//           `Bearer ${adminToken}`;
+//       }
+
+//       return config;
+//     }
+
+//     /* DEVELOPER ROUTES */
+//     if (
+//       url.startsWith("/developers/verify") ||
+//       url.startsWith("/developers/tasks") ||
+//       url.startsWith("/developers/upload-photo") ||
+//       url.startsWith("/tasks")
+//     ) {
+//       if (devToken) {
+//         config.headers.Authorization =
+//           `Bearer ${devToken}`;
+//       }
+
+//       return config;
+//     }
+
+//     /* DEFAULT ADMIN */
+//     if (adminToken) {
+//       config.headers.Authorization =
+//         `Bearer ${adminToken}`;
+//     }
+
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
+
+// export default instance;
+
+
 import axios from "axios";
 
 const instance = axios.create({
@@ -106,10 +180,8 @@ instance.interceptors.request.use(
       url.startsWith("/admin")
     ) {
       if (adminToken) {
-        config.headers.Authorization =
-          `Bearer ${adminToken}`;
+        config.headers.Authorization = `Bearer ${adminToken}`;
       }
-
       return config;
     }
 
@@ -117,21 +189,31 @@ instance.interceptors.request.use(
     if (
       url.startsWith("/developers/verify") ||
       url.startsWith("/developers/tasks") ||
-      url.startsWith("/developers/upload-photo") ||
-      url.startsWith("/tasks")
+      url.startsWith("/developers/upload-photo")
     ) {
       if (devToken) {
-        config.headers.Authorization =
-          `Bearer ${devToken}`;
+        config.headers.Authorization = `Bearer ${devToken}`;
       }
-
       return config;
     }
 
-    /* DEFAULT ADMIN */
-    if (adminToken) {
-      config.headers.Authorization =
-        `Bearer ${adminToken}`;
+    /* DEVELOPER TASK UPDATE */
+    if (
+      url.startsWith("/tasks/") &&
+      config.method?.toLowerCase() === "patch"
+    ) {
+      if (devToken) {
+        config.headers.Authorization = `Bearer ${devToken}`;
+      }
+      return config;
+    }
+
+    /* ADMIN TASK ROUTES */
+    if (url.startsWith("/tasks")) {
+      if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+      }
+      return config;
     }
 
     return config;
