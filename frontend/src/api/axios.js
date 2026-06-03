@@ -26,7 +26,17 @@ instance.interceptors.request.use(
        2. EXCEPTION FOR ADMIN ACTIONS
        ===================================== */
     // Even though this starts with /developers, it's an admin action
- if (url.startsWith("/developers")) {
+/* ADMIN ONLY DEVELOPER ROUTES */
+
+if (
+  url === "/developers" ||
+  url === "/developers/add" ||
+  (url.startsWith("/developers/") &&
+    !url.startsWith("/developers/verify") &&
+    !url.startsWith("/developers/tasks") &&
+    !url.startsWith("/developers/upload-photo") &&
+    !url.startsWith("/developers/update-profile"))
+) {
   if (adminToken) {
     config.headers.Authorization = `Bearer ${adminToken}`;
   }
